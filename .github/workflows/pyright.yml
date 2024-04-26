@@ -1,4 +1,4 @@
-name: Ruff linter and formatter
+name: Pyright Static Type Checker
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     types: [assigned, opened, synchronize, reopened]
 
 jobs:
-  ruff_lint_and_format:
+  pyright_type_check:
     runs-on: ubuntu-latest
     env:
       UV_HTTP_TIMEOUT: 600 # max 10min to install deps
@@ -27,12 +27,9 @@ jobs:
           uv venv
 
       # Install Ruff from requirements-dev.txt
-      - name: Install Ruff
+      - name: Install Pyright
         run: |
-          uv pip install "ruff==$(grep -oP '(?<=ruff==).*' requirements-dev.txt)"
+          uv pip install "pyright==$(grep -oP '(?<=pyright==).*' requirements-dev.txt)"
 
-      - name: Ruff Linter
-        run: .venv/bin/ruff check bot tests
-
-      - name: Ruff Formatter 
-        run: .venv/bin/ruff format bot tests
+      - name: Pyright check
+        run: .venv/bin/pyright src
