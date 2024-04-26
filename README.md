@@ -26,5 +26,29 @@
 - [ ] Quick deployments.
 - [ ] Codebase refractor.
 
+#### START-UP REQUIREMENTS
+<details>
+<summary>.env / environ</summary>
+
+> You can use either .env or environ as a way to setup the configuration. Please see .env_example as reference.
+
+[Telegram website](https://my.telegram.org/auth)
+- API_ID
+- API_HASH
+
+[Bot father](t.me/BotFather)
+- BOT_TOKEN
+
+[Mongo database](https://www.mongodb.com)
+- MONGO_DB_URL = mongodb://http
+
+Main config
+- BACKUP_CHANNEL
+- ROOT_ADMINS_ID
+- FORCE_SUB_CHANNELS
+</details>
+
+<br>
+
 ____
 **SUPPORT CHANNEL: [THE HQ](https://t.me/zawshq)**
