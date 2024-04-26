@@ -53,10 +53,7 @@ async def file_start(
         hide_sender_name=True,
     )
 
-    if isinstance(forward_files, list):
-        schedule_delete = [msg.id for msg in forward_files]
-    else:
-        schedule_delete = [forward_files.id]
+    schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
     custom_caption = options.settings.CUSTOM_CAPTION
