@@ -1,0 +1,31 @@
+[project]
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 120
+src = ["bot"]
+namespace-packages = [
+    "bot/plugins/**",
+    "bot/plugins/"
+    ]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "CPY001", # copyright above code
+    "ANN101", # self annotations
+    "ANN102", # cls annotations
+    "D",      # sphinx not support 
+    ]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101", # assert in tests
+    ]
+
+[tool.pyright]
+include = ["bot","tests"]
+pythonVersion = "3.10"
+pythonPlatform = "all"
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
