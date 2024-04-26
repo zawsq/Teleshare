@@ -9,9 +9,12 @@
 
 #### FEATURES
 - Highly configurable.
-- Easy setup
+- Type-hinted.
+- Fast and efficient.
+- Fully asynchronous.
+- Easy setup.
 - User friendly Interface.
-- Multi channel force subscription
+- Multi channel force subscription.
 - Auto backup files.
 - Auto delete messages.
 
@@ -20,7 +23,8 @@
 - [ ] Public mode.
 - [ ] Tokenized access.
 - [ ] Configuration commands.
-- [ ] Quick Deployments.
+- [ ] Quick deployments.
+- [ ] Codebase refractor.
 
 ____
 **SUPPORT CHANNEL: [THE HQ](https://t.me/zawshq)**
