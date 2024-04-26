@@ -1,0 +1,9 @@
+pyrogram @ git+https://github.com/KurimuzonAkuma/pyrogram.git@v2.1.17
+TgCrypto==1.2.5
+
+APScheduler==3.10.4
+rich==13.7.1
+
+pydantic==2.6.4
+pydantic-settings==2.2.1
+motor==3.3.2
