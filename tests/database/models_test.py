@@ -6,10 +6,12 @@ def test_pipe_match() -> None:
     dumped = pipe_match.model_dump()
     assert dumped == {"$match": {"_id": "69420"}}
 
+
 def test_flt_id() -> None:
     flt_id = FltId(_id="id")
     dumped = flt_id.model_dump()
     assert dumped == {"_id": "id"}
+
 
 def test_upd_set() -> None:
     upd_set = UpdSet(_set={"id here": "69420"})

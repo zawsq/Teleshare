@@ -1,0 +1,39 @@
+name: Ruff
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  check_code_quality:
+    runs-on: ubuntu-latest
+    env:
+      UV_HTTP_TIMEOUT: 600 # max 10min to install deps
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10.13
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.10.13
+
+      # Setup venv
+      - name: Setup venv + uv
+        run: |
+          pip install --upgrade uv
+          uv venv
+
+      # Install Ruff from requirements-dev.txt
+      - name: Install Ruff
+        run: |
+          ruff_version=$(grep -oP '(?<=ruff==).*' requirements-dev.txt)
+          uv pip install "ruff==$ruff_version"
+
+      - name: Ruff Linter
+        run: .venv/bin/ruff check src
+
+      - name: Ruff Formatter 
+        run: .venv/bin/ruff format src
