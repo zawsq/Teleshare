@@ -42,7 +42,7 @@ async def file_start(
         base64_file = message.text.split(maxsplit=1)[1]
         decode_list = Encoding.decode(base64_file)
     except (IndexError, binascii.Error):
-        await message.reply("Attempted to fetch files: got invalid link")
+        await message.reply(text="Attempted to fetch files: got invalid link")
         return message.stop_propagation()
 
     forward_files = await client.forward_messages(
@@ -52,6 +52,10 @@ async def file_start(
         hide_captions=True,
         hide_sender_name=True,
     )
+    
+    if not forward_files:
+        await message.reply(text="Attempted to fetch files: has be deleted or no longer exist")
+        return message.stop_propagation()
 
     schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
