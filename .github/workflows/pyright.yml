@@ -26,10 +26,10 @@ jobs:
           pip install --upgrade uv
           uv venv
 
-      # Install Ruff from requirements-dev.txt
+      # Install Pyright from requirements-dev.txt
       - name: Install Pyright
         run: |
           uv pip install "pyright==$(grep -oP '(?<=pyright==).*' requirements-dev.txt)"
 
       - name: Pyright check
-        run: .venv/bin/pyright src
+        run: .venv/bin/pyright bot
