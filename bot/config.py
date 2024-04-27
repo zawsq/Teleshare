@@ -24,6 +24,7 @@ class Config(BaseSettings):
     """A general configuration setup to read either .env or environment keys."""
 
     # Bot deploy config
+    PORT: int = 8080
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
