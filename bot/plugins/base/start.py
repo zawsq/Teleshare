@@ -52,7 +52,7 @@ async def file_start(
         hide_captions=True,
         hide_sender_name=True,
     )
-    
+
     if not forward_files:
         await message.reply(text="Attempted to fetch files: has be deleted or no longer exist")
         return message.stop_propagation()
