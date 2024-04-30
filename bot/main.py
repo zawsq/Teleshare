@@ -23,7 +23,7 @@ background_tasks = set()
 
 
 async def main() -> None:
-    http_server = HTTPServer(host="0.0.0.0", port=config.PORT)
+    http_server = HTTPServer(host="127.0.0.1", port=config.PORT)
     task = asyncio.create_task(http_server.run_server())
     background_tasks.add(task)
 

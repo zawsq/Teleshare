@@ -22,7 +22,8 @@
 - [ ] Broadcast / Announcement.
 - [ ] Public mode.
 - [ ] Tokenized access.
-- [ ] Configuration commands.
+- [x] Configuration commands.
+- [x] http client
 - [ ] Quick deployments.
 - [ ] Codebase refractor.
 
