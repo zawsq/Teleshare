@@ -25,6 +25,8 @@ class Config(BaseSettings):
 
     # Bot deploy config
     PORT: int = 8080
+    HOSTNAME: str = "0.0.0.0"  # noqa: S104
+
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
