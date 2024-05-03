@@ -81,8 +81,6 @@ async def return_start(
     """
     Handle start command without file sharing.
     """
-    if len(message.command) != 1:
-        return None
 
     buttons = []
     channels_n_invite = client.channels_n_invite  # type: ignore[reportAttributeAccessIssue]
