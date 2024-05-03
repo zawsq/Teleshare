@@ -24,14 +24,14 @@
 - [ ] Tokenized access.
 - [x] Configuration commands.
 - [x] http client
-- [ ] Quick deployments.
+- [x] Quick deployments.
 - [ ] Codebase refractor.
 
 #### START-UP REQUIREMENTS
 <details>
 <summary>.env / environ</summary>
 
-> You can use either .env or environ as a way to setup the configuration. Please see .env_example as reference.
+> You can use either .env or environ as a way to setup the configuration. Please see [.env_example](.env_example)  as reference.
 
 [Telegram website](https://my.telegram.org/auth)
 - API_ID
@@ -47,6 +47,15 @@ Main config
 - BACKUP_CHANNEL
 - ROOT_ADMINS_ID
 - FORCE_SUB_CHANNELS
+</details>
+
+#### QUICK DEPLOYMENT
+<details>
+<summary>KOYEB</summary>
+
+Please edit the following "Environment Variable" and refer to [.env_example](.env_example) for reference.
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=mvp-stage&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
 </details>
 
 <br>
