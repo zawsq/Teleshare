@@ -31,7 +31,11 @@ class HTTPServer:
         writer.write(b"Content-type: text/html\r\n")
         writer.write(b"\r\n")
         writer.write(b"<html><body>Hello, World!</body></html>")
-        await writer.drain()
+
+        try:
+            await writer.drain()
+        except ConnectionResetError:
+            self.logger.info("Connection Lost")
         writer.close()
 
     async def run_server(self) -> None:
