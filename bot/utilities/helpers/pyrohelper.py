@@ -1,5 +1,8 @@
+
+from pyrogram import raw
 from pyrogram.client import Client
-from pyrogram.types import Chat
+
+from config import config
 
 
 class NoInviteLinkError(Exception):
@@ -31,10 +34,6 @@ class PyroHelper:
 
         Example:
             make sure the bot have required permissions to get invites
-            >>> from pyrogram import Client
-            >>> from pyrohelper import PyroHelper
-
-            >>> app = Client("session_name")
             >>> helper = PyroHelper()
 
             >>> channels = [123456789, 987654321]
@@ -48,10 +47,19 @@ class PyroHelper:
         channels_n_invite = {}
         for channel_id in channels:
             channel = await client.get_chat(chat_id=channel_id)
-            if isinstance(channel, Chat):
-                invite_link = channel.invite_link
+            get_link = await client.invoke(
+                raw.functions.messages.ExportChatInvite( # type: ignore[reportPrivateImportUsage]
+                    peer=await client.resolve_peer(peer_id=channel_id), # type: ignore[reportArgumentType]
+                    legacy_revoke_permanent=True,
+                    request_needed=config.PRIVATE_REQUEST,
+                ),
+            )
+
+            if get_link is not None:
+                channel_invite = get_link.link # type: ignore[reportAttributeAccessIssue]
+                channels_n_invite[channel.title] = channel_invite
             else:
-                invite_link = await client.export_chat_invite_link(channel_id)
-            channels_n_invite[channel.title] = invite_link
+                raise NoInviteLinkError(channel_id)
+
 
         return channels_n_invite

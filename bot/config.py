@@ -36,6 +36,7 @@ class Config(BaseSettings):
     BACKUP_CHANNEL: int
     ROOT_ADMINS_ID: list[int]
     FORCE_SUB_CHANNELS: list[int]
+    PRIVATE_REQUEST: bool = False
 
     model_config = SettingsConfigDict(
         env_file=f"{base_path}/.env",
