@@ -8,15 +8,15 @@ from bot.config import config
 from bot.database import MongoDB
 from bot.database.models import FltId, UpdSet
 from bot.options import options
-from bot.utilities.helpers import Encoding, SubscriptionFilter
+from bot.utilities.helpers import Encoding
+from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.schedule_manager import schedule_manager
 
-flt_sub = SubscriptionFilter()
 database = MongoDB("Zaws-File-Share")
 
 
 @Client.on_message(
-    filters.command("start") & filters.private & flt_sub.subscription(),
+    filters.command("start") & filters.private & PyroFilters.subscription(),
     group=0,
 )
 async def file_start(
@@ -79,7 +79,7 @@ async def return_start(
     message: Message,
 ) -> Message | None:
     """
-    Handle start command without file sharing.
+    Handle start command without files or not subscribed.
     """
 
     buttons = []
