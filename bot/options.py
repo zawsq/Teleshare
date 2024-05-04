@@ -13,6 +13,8 @@ class SettingsModel(BaseModel):
 
     AUTO_DELETE_SECONDS: int = 300
 
+    IS_GLOBAL: bool = False
+
 
 class InvalidValueError(Exception):
     def __init__(self, key: str | int) -> None:
@@ -46,7 +48,11 @@ class Options:
         Example:
             await self.load_settings()
         """
-        match = PipeMatch(match=FltId(_id=self.document_id).model_dump())
+        match = PipeMatch(
+            match=FltId(
+                _id=self.document_id,
+            ).model_dump(),
+        )
         pipeline = [match.model_dump()]
         settings_doc = await self.database.aggregate(collection=self.collection, pipeline=pipeline)
 

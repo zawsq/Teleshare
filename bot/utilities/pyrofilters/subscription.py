@@ -10,9 +10,8 @@ from bot.config import config
 
 
 class SubscriptionFilter:
-    def subscription(
-        self,
-    ) -> filters.Filter:
+    @staticmethod
+    def subscription() -> filters.Filter:
         async def func(flt: None, client: Client, message: Message) -> bool:
             user_id = message.from_user.id
             status = [

@@ -1,4 +1,3 @@
-
 from pyrogram import raw
 from pyrogram.client import Client
 
@@ -48,18 +47,17 @@ class PyroHelper:
         for channel_id in channels:
             channel = await client.get_chat(chat_id=channel_id)
             get_link = await client.invoke(
-                raw.functions.messages.ExportChatInvite( # type: ignore[reportPrivateImportUsage]
-                    peer=await client.resolve_peer(peer_id=channel_id), # type: ignore[reportArgumentType]
+                raw.functions.messages.ExportChatInvite(  # type: ignore[reportPrivateImportUsage]
+                    peer=await client.resolve_peer(peer_id=channel_id),  # type: ignore[reportArgumentType]
                     legacy_revoke_permanent=True,
                     request_needed=config.PRIVATE_REQUEST,
                 ),
             )
 
             if get_link is not None:
-                channel_invite = get_link.link # type: ignore[reportAttributeAccessIssue]
+                channel_invite = get_link.link  # type: ignore[reportAttributeAccessIssue]
                 channels_n_invite[channel.title] = channel_invite
             else:
                 raise NoInviteLinkError(channel_id)
-
 
         return channels_n_invite

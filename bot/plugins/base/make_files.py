@@ -3,15 +3,15 @@ from pyrogram.client import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
-from bot.utilities.helpers import ConversationFilter, ConvoMessage, Encoding
+from bot.utilities.helpers import Encoding
+from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 
-flt_convo = ConversationFilter()
 files_cache = {}
 
 
 @Client.on_message(
     filters.private
-    & flt_convo.create_conversation_filter(
+    & PyroFilters.create_conversation_filter(
         convo_start="/make_files",
         convo_stop="/make_link",
     ),
@@ -37,7 +37,7 @@ async def make_files_command(client: Client, message: ConvoMessage) -> Message |
         files_cache[unique_id].update({message.id: message.document.file_name})
 
         file_names = "\n".join(files_cache[unique_id].values())
-        extra_message = "Send /make_link to create a sharable link."
+        extra_message = "- Send more documents for batch files.\n- Send /make_link to create a sharable link."
         return await message.reply(text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}")
 
     if message.convo_stop:
