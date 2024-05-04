@@ -11,6 +11,7 @@ files_cache = {}
 
 @Client.on_message(
     filters.private
+    & PyroFilters.admin(allow_global=True)
     & PyroFilters.create_conversation_filter(
         convo_start="/make_files",
         convo_stop="/make_link",

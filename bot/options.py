@@ -13,7 +13,7 @@ class SettingsModel(BaseModel):
 
     AUTO_DELETE_SECONDS: int = 300
 
-    IS_GLOBAL: bool = False
+    GLOBAL_MODE: bool = False
 
 
 class InvalidValueError(Exception):

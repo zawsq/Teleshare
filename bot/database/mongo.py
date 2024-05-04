@@ -1,14 +1,10 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import InvalidOperation
+from pymongo.results import DeleteResult, UpdateResult
 
 from bot.config import config
-
-if TYPE_CHECKING:
-    from pymongo.results import DeleteResult, UpdateResult
 
 
 class MongoDB:
@@ -30,7 +26,7 @@ class MongoDB:
     async def delete_one(
         self,
         collection: str,
-        db_filter: dict[str, str],
+        db_filter: dict[str, Any],
     ) -> DeleteResult:
         """Delete a single document from a MongoDB collection.
 
@@ -46,6 +42,26 @@ class MongoDB:
         """
         _collection = self.db[collection]
         return await _collection.delete_one(filter=db_filter)
+
+    async def delete_many(
+        self,
+        collection: str,
+        db_filter: dict[str, Any],
+    ) -> DeleteResult:
+        """Delete multiple documents from a MongoDB collection.
+
+        This method deletes all documents that match the `db_filter`.
+
+        Parameters:
+            collection (str): The name of the collection to delete from.
+            db_filter (dict[str, Any]): The filter to match the documents to delete.
+
+        Returns:
+            DeleteResult: The result of the delete operation.
+
+        """
+        _collection = self.db[collection]
+        return await _collection.delete_many(filter=db_filter)
 
     async def update_one(
         self,
@@ -80,7 +96,7 @@ class MongoDB:
     async def aggregate(
         self,
         collection: str,
-        pipeline: list[dict[str, str]],
+        pipeline: list[dict[str, Any]],
     ) -> list[dict]:
         """Perform aggregation on documents in a MongoDB collection.
 

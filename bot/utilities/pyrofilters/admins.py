@@ -15,8 +15,8 @@ class AdminsFilter:
     ) -> filters.Filter:
         async def func(flt: None, client: Client, message: Message) -> bool:
             user_id = message.from_user.id
-            is_global = options.settings.IS_GLOBAL
-            if user_id in config.ROOT_ADMINS_ID or allow_global and is_global:
+            global_mode = options.settings.GLOBAL_MODE
+            if user_id in config.ROOT_ADMINS_ID or global_mode and allow_global:
                 return True
 
             return False
