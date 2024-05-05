@@ -52,8 +52,5 @@
             "quantity":1,
             "size":"eco"
         }
-    },
-    "scripts":{
-        "postdeploy":"cd bot && python main.py"
     }
 }
