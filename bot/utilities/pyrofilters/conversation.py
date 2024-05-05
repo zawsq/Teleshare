@@ -15,7 +15,7 @@ class ConvoMessage(Message):
 class ConversationFilter:
     """Experimental pyrogram add-on conversation filter."""
 
-    CACHE: ClassVar[set[int]] = set()
+    CONVO_CACHE: ClassVar[set[int]] = set()
 
     @classmethod
     def create_conversation_filter(
@@ -46,15 +46,15 @@ class ConversationFilter:
 
             if text and text.startswith(convo_start):
                 message.convo_start = True
-                cls.CACHE.add(unique_id)
+                cls.CONVO_CACHE.add(unique_id)
                 return True
 
-            if convo_stop is not None and text and unique_id in cls.CACHE and text.startswith(convo_stop):
+            if convo_stop is not None and text and unique_id in cls.CONVO_CACHE and text.startswith(convo_stop):
                 message.convo_stop = True
-                cls.CACHE.discard(unique_id)
+                cls.CONVO_CACHE.discard(unique_id)
                 return True
 
-            if unique_id in cls.CACHE:
+            if unique_id in cls.CONVO_CACHE:
                 message.conversation = True
                 return True
 

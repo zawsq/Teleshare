@@ -25,6 +25,7 @@
 - [x] Invite requests.
 - [x] Public mode.
 - [x] Quick deployments.
+- [ ] Fully remove database models.
 - [ ] Tokenized access.
 
 #### START-UP REQUIREMENTS
@@ -47,6 +48,7 @@ Main config
 - BACKUP_CHANNEL
 - ROOT_ADMINS_ID
 - FORCE_SUB_CHANNELS
+- PRIVATE_REQUEST
 </details>
 
 #### QUICK DEPLOYMENT
