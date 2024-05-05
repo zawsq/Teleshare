@@ -21,13 +21,13 @@ async def option_config(client: Client, message: Message) -> Message | None:  # 
     cmd = message.command
 
     if len(cmd) == DEFAULT_ARGUMENT:
-        final_message = await message.reply(
+        return await message.reply(
             text=f"```\n{options.settings.model_dump_json(indent=2)}```\n{TO_UPDATE}",
             quote=True,
         )
 
-    elif len(cmd) == MISSING_ARGUMENT:
-        final_message = await message.reply(text=f"missing arguments:\n{TO_UPDATE}", quote=True)
+    if len(cmd) == MISSING_ARGUMENT:
+        return await message.reply(text=f"missing arguments:\n{TO_UPDATE}", quote=True)
 
     key = cmd[1]
     change_value = int(cmd[2]) if cmd[2].isdigit() else cmd[2]
