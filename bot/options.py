@@ -13,6 +13,13 @@ class SettingsModel(BaseModel):
 
     AUTO_DELETE_SECONDS: int = 300
 
+    GLOBAL_MODE: bool = False
+
+
+class InvalidValueError(Exception):
+    def __init__(self, key: str | int) -> None:
+        super().__init__(f"Value for key '{key}' must have the same type as the existing value.")
+
 
 class Options:
     def __init__(self) -> None:
@@ -29,7 +36,7 @@ class Options:
             self.document_id:
                 The ID of the document to retrieve/update settings.
         """
-        self.settings = SettingsModel
+        self.settings = SettingsModel()
         self.collection = "BotSettings"
         self.database = MongoDB("Zaws-File-Share")
         self.document_id = "MainOptions"
@@ -41,7 +48,11 @@ class Options:
         Example:
             await self.load_settings()
         """
-        match = PipeMatch(match=FltId(_id=self.document_id).model_dump())
+        match = PipeMatch(
+            match=FltId(
+                _id=self.document_id,
+            ).model_dump(),
+        )
         pipeline = [match.model_dump()]
         settings_doc = await self.database.aggregate(collection=self.collection, pipeline=pipeline)
 
@@ -64,8 +75,8 @@ class Options:
     async def update_settings(
         self,
         key: str,
-        value: list[int | str] | str | int,
-    ) -> SettingsModel | None:
+        value: str | int,
+    ) -> SettingsModel:
         """
         Update the settings and save them to the MongoDB collection.
 
@@ -87,12 +98,17 @@ class Options:
         Example:
             await self.update_settings(key="START_MESSAGE", value="Hello, I am a bot.")
         """
-        # Change self.settings key value
-        setattr(self.settings, key, value)
-        model_key, model_value = key, getattr(self.settings, key)
+        if not getattr(self.settings, key, None):
+            invalid = "Invalid-Key"
+            raise KeyError(invalid)
 
-        # Validate Changes
+        if not isinstance(value, type(getattr(self.settings, key))):
+            raise InvalidValueError(key)
+
+        setattr(self.settings, key, value)
         self.settings = SettingsModel(**self.settings.model_dump())
+
+        model_key, model_value = key, getattr(self.settings, key)
 
         db_filter = FltId(_id=self.document_id).model_dump()
         update = UpdSet(_set={model_key: model_value}).model_dump()

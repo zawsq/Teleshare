@@ -24,6 +24,9 @@ class Config(BaseSettings):
     """A general configuration setup to read either .env or environment keys."""
 
     # Bot deploy config
+    PORT: int = 8080
+    HOSTNAME: str = "0.0.0.0"  # noqa: S104
+
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
@@ -33,6 +36,7 @@ class Config(BaseSettings):
     BACKUP_CHANNEL: int
     ROOT_ADMINS_ID: list[int]
     FORCE_SUB_CHANNELS: list[int]
+    PRIVATE_REQUEST: bool = False
 
     model_config = SettingsConfigDict(
         env_file=f"{base_path}/.env",

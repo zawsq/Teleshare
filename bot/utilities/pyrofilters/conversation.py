@@ -1,4 +1,4 @@
-# ruff: noqa: ARG001
+from typing import ClassVar
 
 from pyrogram import filters
 from pyrogram.client import Client
@@ -15,25 +15,13 @@ class ConvoMessage(Message):
 class ConversationFilter:
     """Experimental pyrogram add-on conversation filter."""
 
-    def __init__(self) -> None:
-        self.cache = set()
+    CONVO_CACHE: ClassVar[set[int]] = set()
 
-    def stop_conversation(self, unique_id: int) -> None:
-        """Manually stop conversation.
-
-        Parameters:
-            unique_id (int):
-                Unique id with combination of chat id and user id
-
-        Returns:
-            None
-        """
-        self.cache.discard(unique_id)
-
+    @classmethod
     def create_conversation_filter(
-        self,
+        cls,
         convo_start: str,
-        convo_stop: str | None,
+        convo_stop: str | None = None,
     ) -> filters.Filter:
         """Create a filter function for the given convo_start.
 
@@ -48,24 +36,25 @@ class ConversationFilter:
                 A filter function that can be used with Update Handlers
         """
 
-        async def func(flt: filters.Filter, client: Client, message: ConvoMessage) -> bool:
+        async def func(flt: filters.Filter, client: Client, message: ConvoMessage) -> bool:  # noqa: ARG001
             text = message.text or message.caption
             unique_id = message.chat.id + message.from_user.id
+
             message.convo_start = False
-            message.convo_stop = False
             message.conversation = False
+            message.convo_stop = False
 
             if text and text.startswith(convo_start):
                 message.convo_start = True
-                self.cache.add(unique_id)
+                cls.CONVO_CACHE.add(unique_id)
                 return True
 
-            if convo_stop is not None and text and unique_id in self.cache and text.startswith(convo_stop):
+            if convo_stop is not None and text and unique_id in cls.CONVO_CACHE and text.startswith(convo_stop):
                 message.convo_stop = True
-                self.cache.discard(unique_id)
+                cls.CONVO_CACHE.discard(unique_id)
                 return True
 
-            if unique_id in self.cache:
+            if unique_id in cls.CONVO_CACHE:
                 message.conversation = True
                 return True
 

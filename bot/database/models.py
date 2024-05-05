@@ -1,13 +1,13 @@
 """Experimental over-engineered models for mongo database which/might help with code quality and readability
 Reason:
-    mongodb syntax is ugly af. however this might actually a bad idea :].
+    mongodb syntax is ugly af. however this might actually a bad idea and can increase codebase learning curve :].
 
 Agg*: models for aggregation
 Upd*: models for updates
 Flt*: models for filters
 Pipe*: models for pipelines
 
-instead of having '$' character at begining it will be replaced with '*_'."""
+instead of having '$' character at begining it will be replaced with '_*'."""
 
 from typing import Any
 

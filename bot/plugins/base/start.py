@@ -2,21 +2,22 @@ import binascii
 
 from pyrogram import filters
 from pyrogram.client import Client
+from pyrogram.errors import MessageIdInvalid
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
 from bot.database import MongoDB
 from bot.database.models import FltId, UpdSet
 from bot.options import options
-from bot.utilities.helpers import Encoding, SubscriptionFilter
+from bot.utilities.helpers import Encoding
+from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.schedule_manager import schedule_manager
 
-flt_sub = SubscriptionFilter()
 database = MongoDB("Zaws-File-Share")
 
 
 @Client.on_message(
-    filters.command("start") & filters.private & flt_sub.subscription(),
+    filters.command("start") & filters.private & PyroFilters.subscription(),
     group=0,
 )
 async def file_start(
@@ -42,16 +43,23 @@ async def file_start(
         base64_file = message.text.split(maxsplit=1)[1]
         decode_list = Encoding.decode(base64_file)
     except (IndexError, binascii.Error):
-        await message.reply("Attempted to fetch files: got invalid link")
+        await message.reply(text="Attempted to fetch files: got invalid link")
         return message.stop_propagation()
 
-    forward_files = await client.forward_messages(
-        chat_id=message.chat.id,
-        from_chat_id=config.BACKUP_CHANNEL,
-        message_ids=decode_list,
-        hide_captions=True,
-        hide_sender_name=True,
-    )
+    try:
+        forward_files = await client.forward_messages(
+            chat_id=message.chat.id,
+            from_chat_id=config.BACKUP_CHANNEL,
+            message_ids=decode_list,
+            hide_captions=True,
+            hide_sender_name=True,
+        )
+        if not forward_files:
+            await message.reply(text="Attempted to fetch files: has be deleted or no longer exist")
+            return message.stop_propagation()
+    except MessageIdInvalid:
+        await message.reply(text="Attempted to fetch files: unknown backup channel source")
+        return message.stop_propagation()
 
     schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
@@ -75,10 +83,8 @@ async def return_start(
     message: Message,
 ) -> Message | None:
     """
-    Handle start command without file sharing.
+    Handle start command without files or not subscribed.
     """
-    if len(message.command) != 1:
-        return None
 
     buttons = []
     channels_n_invite = client.channels_n_invite  # type: ignore[reportAttributeAccessIssue]
