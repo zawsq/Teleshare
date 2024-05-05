@@ -2,22 +2,27 @@ from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message
 
-from bot.config import config
 from bot.options import InvalidValueError, options
+from bot.utilities.pyrofilters import PyroFilters
 
 DEFAULT_ARGUMENT = 1
 MISSING_ARGUMENT = 2
-TO_UPDATE = """Usage: /option key new_value
+TO_UPDATE = """
+Usage: /option key new_value
+
 ex: /option AUTO_DELETE_SECONDS 600
+this sets `AUTO_DELETE_SECONDS` as 600 seconds or 10 minutes
 
-this sets `AUTO_DELETE_SECONDS` as 600 seconds or 10 minutes"""
+or
+
+reply to a message with
+ex. /option AUTO_DELETE_SECONDS"""
 
 
-@Client.on_message(filters.private & filters.command("option"))
+@Client.on_message(
+    filters.private & PyroFilters.admin() & filters.command("option"),
+)
 async def option_config(client: Client, message: Message) -> Message | None:  # noqa: ARG001
-    if message.from_user.id not in config.ROOT_ADMINS_ID:
-        return None
-
     cmd = message.command
 
     if len(cmd) == DEFAULT_ARGUMENT:
@@ -25,12 +30,17 @@ async def option_config(client: Client, message: Message) -> Message | None:  # 
             text=f"```\n{options.settings.model_dump_json(indent=2)}```\n{TO_UPDATE}",
             quote=True,
         )
-
-    if len(cmd) == MISSING_ARGUMENT:
-        return await message.reply(text=f"missing arguments:\n{TO_UPDATE}", quote=True)
-
     key = cmd[1]
-    change_value = int(cmd[2]) if cmd[2].isdigit() else cmd[2]
+
+    if not message.reply_to_message:
+        if len(cmd) == MISSING_ARGUMENT:
+            return await message.reply(text=f"missing arguments:\n{TO_UPDATE}", quote=True)
+
+        values = " ".join(cmd[2:])
+    else:
+        values = message.reply_to_message.text.markdown
+
+    change_value = int(values) if values.isdigit() else values
 
     try:
         update = await options.update_settings(key=key, value=change_value)
