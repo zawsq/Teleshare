@@ -7,8 +7,11 @@ Config: Bot Config
 import logging
 import sys
 from pathlib import Path
+from typing import Annotated
 
-from pydantic import MongoDsn, ValidationError
+from pydantic import ValidationError
+from pydantic.networks import UrlConstraints
+from pydantic_core import MultiHostUrl
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
@@ -17,7 +20,8 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-base_path = Path(__file__).parent.parent
+MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
+BASE_PATH = Path(__file__).parent.parent
 
 
 class Config(BaseSettings):
@@ -30,7 +34,7 @@ class Config(BaseSettings):
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
-    MONGO_DB_URL: MongoDsn
+    MONGO_DB_URL: MongoSRVDsn
 
     # Bot main config
     BACKUP_CHANNEL: int
@@ -39,7 +43,7 @@ class Config(BaseSettings):
     PRIVATE_REQUEST: bool = False
 
     model_config = SettingsConfigDict(
-        env_file=f"{base_path}/.env",
+        env_file=f"{BASE_PATH}/.env",
     )
 
     @classmethod
