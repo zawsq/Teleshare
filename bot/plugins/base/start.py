@@ -2,6 +2,7 @@ import binascii
 
 from pyrogram import filters
 from pyrogram.client import Client
+from pyrogram.errors import MessageIdInvalid
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
@@ -44,18 +45,22 @@ async def file_start(
     except (IndexError, binascii.Error):
         await message.reply(text="Attempted to fetch files: got invalid link")
         return message.stop_propagation()
-
-    forward_files = await client.forward_messages(
-        chat_id=message.chat.id,
-        from_chat_id=config.BACKUP_CHANNEL,
-        message_ids=decode_list,
-        hide_captions=True,
-        hide_sender_name=True,
-    )
-
-    if not forward_files:
-        await message.reply(text="Attempted to fetch files: has be deleted or no longer exist")
+    
+    try:
+        forward_files = await client.forward_messages(
+            chat_id=message.chat.id,
+            from_chat_id=config.BACKUP_CHANNEL,
+            message_ids=decode_list,
+            hide_captions=True,
+            hide_sender_name=True,
+        )
+        if not forward_files:
+            await message.reply(text="Attempted to fetch files: has be deleted or no longer exist")
+            return message.stop_propagation()
+    except MessageIdInvalid:
+        await message.reply(text="Attempted to fetch files: unknown backup channel source")
         return message.stop_propagation()
+
 
     schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
