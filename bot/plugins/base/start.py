@@ -45,7 +45,7 @@ async def file_start(
     except (IndexError, binascii.Error):
         await message.reply(text="Attempted to fetch files: got invalid link")
         return message.stop_propagation()
-    
+
     try:
         forward_files = await client.forward_messages(
             chat_id=message.chat.id,
@@ -60,7 +60,6 @@ async def file_start(
     except MessageIdInvalid:
         await message.reply(text="Attempted to fetch files: unknown backup channel source")
         return message.stop_propagation()
-
 
     schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
