@@ -7,11 +7,16 @@ Config: Bot Config
 import logging
 import sys
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Annotated
 
 from pydantic import ValidationError
 from pydantic.networks import UrlConstraints
 from pydantic_core import MultiHostUrl
+=======
+
+from pydantic import MongoDsn, ValidationError
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
 from pydantic_settings import (
     BaseSettings,
     DotEnvSettingsSource,
@@ -20,8 +25,12 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
+<<<<<<< HEAD
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
+=======
+base_path = Path(__file__).parent.parent
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
 
 
 class Config(BaseSettings):
@@ -34,7 +43,11 @@ class Config(BaseSettings):
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
+<<<<<<< HEAD
     MONGO_DB_URL: MongoSRVDsn
+=======
+    MONGO_DB_URL: MongoDsn
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
 
     # Bot main config
     BACKUP_CHANNEL: int
@@ -43,7 +56,11 @@ class Config(BaseSettings):
     PRIVATE_REQUEST: bool = False
 
     model_config = SettingsConfigDict(
+<<<<<<< HEAD
         env_file=f"{BASE_PATH}/.env",
+=======
+        env_file=f"{base_path}/.env",
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
     )
 
     @classmethod

@@ -2,7 +2,10 @@ import asyncio
 import logging
 import sys
 
+<<<<<<< HEAD
 import dns.resolver
+=======
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
 from pyrogram.client import Client
 from pyrogram.errors import ChannelInvalid, ChatAdminRequired
 from pyrogram.sync import idle
@@ -16,8 +19,11 @@ from bot.utilities.http_server import HTTPServer
 from bot.utilities.schedule_manager import schedule_manager
 
 install(show_locals=True)
+<<<<<<< HEAD
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
+=======
+>>>>>>> 32724b27186ba0112bc1c6837f96340908682a3e
 
 FORMAT = "%(message)s"
 logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
