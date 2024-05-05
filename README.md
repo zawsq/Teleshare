@@ -8,24 +8,24 @@
 > _Feel free to open an issue for more upcoming features!_
 
 #### FEATURES
-- Highly configurable.
-- Type-hinted.
+- Automatic file backup.
+- Automatic message deletion.
+- Easy to set up.
 - Fast and efficient.
 - Fully asynchronous.
-- Easy setup.
-- User friendly Interface.
-- Multi channel force subscription.
-- Auto backup files.
-- Auto delete messages.
+- Highly configurable.
+- Multi-channel force subscription.
+- Type-hinted for improved code readability.
+- User-friendly interface.
 
 #### TODO
-- [ ] Broadcast / Announcement.
-- [ ] Public mode.
-- [ ] Tokenized access.
+- [x] Broadcast / Announcement.
 - [x] Configuration commands.
-- [x] http client
+- [x] HTTP client.
+- [x] Invite requests.
+- [x] Public mode.
 - [x] Quick deployments.
-- [ ] Codebase refractor.
+- [ ] Tokenized access.
 
 #### START-UP REQUIREMENTS
 <details>
