@@ -1,4 +1,4 @@
-name: Ruff linter and formatter # Combined the two conflicting lines
+name: Ruff linter and formatter
 
 on:
   push:
