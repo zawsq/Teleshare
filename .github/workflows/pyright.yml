@@ -1,0 +1,42 @@
+name: Pyright Static Type Checker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  pyright_type_check:
+    runs-on: ubuntu-latest
+    env:
+      UV_HTTP_TIMEOUT: 600 # max 10min to install deps
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10.13
+
+      # Setup venv
+      - name: Setup venv + uv
+        run: |
+          pip install --upgrade uv
+          uv venv
+
+      # Install Ruff from requirements.txt
+      - name: Install Requirements
+        run: |
+          uv pip install -r requirements.txt
+
+      # Install Pyright from requirements-dev.txt
+      - name: Install Pyright
+        run: |
+          uv pip install "pyright==$(grep -oP '(?<=pyright==).*' requirements-dev.txt)"
+
+      - name: Pyright check
+        run: |
+          source .venv/bin/activate
+          pyright bot
