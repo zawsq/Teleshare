@@ -1,0 +1,59 @@
+{
+    "name":"Teleshare",
+    "description":"store files and can be accessible with a link",
+    "keywords":[
+        "telegram",
+        "file",
+        "sharing",
+        "bot"
+    ],
+    "repository":"https://github.com/zawsq/Teleshare",
+    "env":{
+        "API_ID":{
+            "description":"(int): Your api id, from my.telegram.org",
+            "value":"100"
+        },
+        "API_HASH":{
+            "description":"(str): Your api hash, from my.telegram.org",
+            "value":"abc100"
+        },
+        "BOT_TOKEN":{
+            "description":"(str): Your Bot token, from @Botfather",
+            "value":"100:abc"
+        },
+        "MONGO_DB_URL":{
+            "description":"(MongoDsn): Paste your mongo db url",
+            "value":"mongodb://"
+        },
+        "BACKUP_CHANNEL":{
+            "description":"(int): Your database backup channel, be sure to add the bot here",
+            "value":"100"
+        },
+        "ROOT_ADMINS_ID":{
+            "description":"(list): of admind id",
+            "value":"[1001,68420]"
+        },
+        "FORCE_SUB_CHANNELS":{
+            "description":"(list): of channels for force subscription",
+            "value":"[0110,0111]"
+        },
+        "PRIVATE_REQUEST":{
+            "description":"(boolen): require approval for request invitation",
+            "value":"False"
+        }
+    },
+    "buildpacks":[
+        {
+            "url":"heroku/python"
+        }
+    ],
+    "formation":{
+        "worker":{
+            "quantity":1,
+            "size":"eco"
+        }
+    },
+    "scripts":{
+        "postdeploy":"cd bot && python main.py"
+    }
+}
