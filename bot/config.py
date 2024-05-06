@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import MongoDsn, ValidationError
+from pydantic import ValidationError
 from pydantic.networks import UrlConstraints
 from pydantic_core import MultiHostUrl
 from pydantic_settings import (
@@ -36,8 +36,6 @@ class Config(BaseSettings):
     BOT_TOKEN: str
 
     MONGO_DB_URL: MongoSRVDsn
-
-    MONGO_DB_URL: MongoDsn
 
     # Bot main config
     BACKUP_CHANNEL: int
