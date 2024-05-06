@@ -1,7 +1,7 @@
 from pyrogram import raw
 from pyrogram.client import Client
 
-from config import config
+from bot.config import config
 
 
 class NoInviteLinkError(Exception):

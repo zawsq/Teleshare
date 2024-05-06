@@ -1,4 +1,6 @@
+import dns.resolver
 from pydantic import BaseModel
+from pymongo.errors import ConfigurationError
 
 from .database import MongoDB
 from .database.models import FltId, PipeMatch, UpdSet
@@ -38,8 +40,13 @@ class Options:
         """
         self.settings = SettingsModel()
         self.collection = "BotSettings"
-        self.database = MongoDB("Zaws-File-Share")
         self.document_id = "MainOptions"
+        try:
+            self.database = MongoDB("Zaws-File-Share")
+        except ConfigurationError:
+            dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
+            dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
+            self.database = MongoDB("Zaws-File-Share")
 
     async def load_settings(self) -> None:
         """
