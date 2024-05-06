@@ -27,6 +27,7 @@
 - [x] Quick deployments.
 - [ ] Fully remove database models.
 - [ ] Tokenized access.
+- [ ] help command.
 
 #### START-UP REQUIREMENTS
 <details>
@@ -52,12 +53,18 @@ Main config
 </details>
 
 #### QUICK DEPLOYMENT
+Please edit the following "Environment Variable" and refer to [.env_example](.env_example) for reference.
+
 <details>
 <summary>KOYEB</summary>
 
-Please edit the following "Environment Variable" and refer to [.env_example](.env_example) for reference.
-
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=mvp-stage&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
+</details>
+
+<details>
+<summary>HEROKU</summary>
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/zawsq/Teleshare/tree/heroku-deploy)
 </details>
 
 <br>
