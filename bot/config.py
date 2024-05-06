@@ -23,8 +23,6 @@ from pydantic_settings import (
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
 
-base_path = Path(__file__).parent.parent
-
 
 class Config(BaseSettings):
     """A general configuration setup to read either .env or environment keys."""
@@ -67,7 +65,7 @@ class Config(BaseSettings):
 
 
 try:
-    config = Config()  # pyright: ignore # noqa: PGH003
+    config = Config()  # type: ignore[reportCallIssue]
 except ValidationError:
     logging.exception("Configuration Error")
     sys.exit()
