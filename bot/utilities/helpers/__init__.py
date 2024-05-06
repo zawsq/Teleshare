@@ -3,6 +3,6 @@ from .pyrohelper import NoInviteLinkError, PyroHelper
 
 __all__ = [
     "Encoding",
-    "PyroHelper",
     "NoInviteLinkError",
+    "PyroHelper",
 ]
