@@ -64,16 +64,18 @@ async def file_start(
     schedule_delete = [msg.id for msg in forward_files] if isinstance(forward_files, list) else [forward_files.id]
 
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
-    custom_caption = options.settings.CUSTOM_CAPTION
-    forward_caption = await message.reply(text=custom_caption.format(int(delete_n_seconds / 60)))
-    schedule_delete.append(forward_caption.id)
 
-    await schedule_manager.schedule_delete(
-        client=client,
-        chat_id=message.chat.id,
-        message_ids=schedule_delete,
-        delete_n_seconds=delete_n_seconds,
-    )
+    if delete_n_seconds != 0:
+        custom_caption = options.settings.CUSTOM_CAPTION
+        forward_caption = await message.reply(text=custom_caption.format(int(delete_n_seconds / 60)))
+        schedule_delete.append(forward_caption.id)
+
+        await schedule_manager.schedule_delete(
+            client=client,
+            chat_id=message.chat.id,
+            message_ids=schedule_delete,
+            delete_n_seconds=delete_n_seconds,
+        )
     return message.stop_propagation()
 
 
