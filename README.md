@@ -25,9 +25,13 @@
 - [x] Invite requests.
 - [x] Public mode.
 - [x] Quick deployments.
+- [x] Support common file types: `(doc,photo,vid,audio)`.
+- [ ] Toggle Backup.
+- [ ] Help command.
+- [ ] Toggle global mode.
+- [ ] In-built rate limiter.
 - [ ] Fully remove database models.
 - [ ] Tokenized access.
-- [ ] help command.
 
 #### START-UP REQUIREMENTS
 <details>
