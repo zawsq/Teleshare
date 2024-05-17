@@ -66,8 +66,8 @@ class MongoDB:
     async def update_one(
         self,
         collection: str,
-        db_filter: dict[str, str],
-        update: dict[str, str],
+        db_filter: dict[str, str | int],
+        update: dict[str, dict[str, str | int | list]],
         upsert: bool = True,  # noqa: FBT001, FBT002
     ) -> UpdateResult:
         """Update a single document in a MongoDB collection.

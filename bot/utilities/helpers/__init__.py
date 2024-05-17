@@ -1,8 +1,9 @@
-from .encoding import Encoding
+from .data_encoding import DataEncoder, DataValidationError
 from .pyrohelper import NoInviteLinkError, PyroHelper
 
 __all__ = [
-    "Encoding",
+    "DataEncoder",
+    "DataValidationError",
     "NoInviteLinkError",
     "PyroHelper",
 ]
