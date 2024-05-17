@@ -2,7 +2,7 @@
 <p align="center">A efficient and configurable telegram file sharing bot</p>
 
 > [!IMPORTANT]  
-> This bot is currently in [MVP](https://en.m.wikipedia.org/wiki/Minimum_viable_product) Stage.
+> This bot is currently in [MVP](https://en.m.wikipedia.org/wiki/Minimum_viable_product) Stage. Expect frequent changes and updates. Not yet ready for production use. Use for testing and feedback purposes only.
 
 > [!NOTE]  
 > _Feel free to open an issue for more upcoming features!_
@@ -32,6 +32,7 @@
 - [ ] In-built rate limiter.
 - [ ] Fully remove database models.
 - [ ] Tokenized access.
+- [ ] add codeXbots file-sharing link compatibility.
 
 #### START-UP REQUIREMENTS
 <details>
@@ -62,7 +63,7 @@ Please edit the following "Environment Variable" and refer to [.env_example](.en
 <details>
 <summary>KOYEB</summary>
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=mvp-stage&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
 </details>
 
 <details>
