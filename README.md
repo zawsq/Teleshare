@@ -30,7 +30,7 @@
 - [ ] Help command.
 - [ ] Toggle global mode.
 - [ ] In-built rate limiter.
-- [ ] Fully remove database models.
+- [x] Fully remove database models.
 - [ ] Tokenized access.
 - [x] Try again button.
 - [x] add codeXbots file-sharing link compatibility.
