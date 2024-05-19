@@ -32,7 +32,8 @@
 - [ ] In-built rate limiter.
 - [ ] Fully remove database models.
 - [ ] Tokenized access.
-- [ ] add codeXbots file-sharing link compatibility.
+- [x] Try again button.
+- [x] add codeXbots file-sharing link compatibility.
 
 #### START-UP REQUIREMENTS
 <details>

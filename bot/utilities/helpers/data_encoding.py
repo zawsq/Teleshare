@@ -54,3 +54,30 @@ class DataEncoder:
             return json.loads(decoded_bytes)
         except (JSONDecodeError, binascii.Error) as exc:
             raise DataValidationError(base64_string) from exc
+
+    @staticmethod
+    def codex_decode(base64_string: str, backup_channel: int) -> list[int]:
+        """
+        CodexBotz file sharing link compatibility decoder.
+
+        Parameters:
+            base64_string (str): The codexbotz filesharing base64 link.
+            backup_channel (int): backup_channel id.
+
+        Returns:
+            list: List of message ids from backup channel.
+
+        Raises:
+            DataValidationError: invalid base64_string string.
+        """
+        try:
+            base64_string = base64_string.strip("=")
+            base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
+            string_bytes = base64.urlsafe_b64decode(base64_bytes)
+            decode_data = string_bytes.decode("ascii")
+
+            decoded_ids = decode_data.split("-")
+
+            return [int(int(i) / abs(backup_channel)) for i in decoded_ids[1:]]
+        except (binascii.Error, ValueError) as exc:
+            raise DataValidationError(base64_string) from exc
