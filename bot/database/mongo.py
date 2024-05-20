@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -66,7 +67,7 @@ class MongoDB:
     async def update_one(
         self,
         collection: str,
-        db_filter: dict[str, str | int],
+        db_filter: Mapping[str, str | int],
         update: dict[str, dict[str, str | int | list]],
         upsert: bool = True,  # noqa: FBT001, FBT002
     ) -> UpdateResult:

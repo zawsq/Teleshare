@@ -1,10 +1,10 @@
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 from pyrogram.client import Client
-from pyrogram.errors import MediaInvalid
 from pyrogram.file_id import FileId
-from pyrogram.types import InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, Message
+from pyrogram.types import Message
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -96,26 +96,20 @@ class SendMedia:
         Returns:
             Message: The sent message.
         """
-        methods = {
-            "AUDIO": InputMediaAudio,
-            "DOCUMENT": InputMediaDocument,
-            "PHOTO": InputMediaPhoto,
-            "VIDEO": InputMediaVideo,
-        }
-        files = []
+        messaage_ids = [i.message_id for i in file_data]
+        send_files = await client.forward_messages(
+            chat_id=chat_id,
+            from_chat_id=file_origin,
+            message_ids=messaage_ids,
+            hide_sender_name=True,
+        )
+
+        if send_files:
+            return send_files
+
+        send_files_message = []
         for i in file_data:
-            file_id_decoded = FileId.decode(file_id=i.file_id)
-            if file_id_decoded is not None:
-                file_type = file_id_decoded.file_type.name
-                if file_type in methods:
-                    files.append(methods[file_type](media=i.file_id, caption=i.caption or ""))
-        try:
-            return await client.send_media_group(chat_id=chat_id, media=files)
-        except MediaInvalid:
-            messaage_ids = [i.message_id for i in file_data]
-            return await client.forward_messages(
-                chat_id=chat_id,
-                from_chat_id=file_origin,
-                message_ids=messaage_ids,
-                hide_sender_name=True,
-            )
+            with contextlib.suppress(UnsupportedFileError):
+                send_files_message.append(await cls.send_media(client=client, chat_id=chat_id, file_data=i))
+
+        return send_files_message
