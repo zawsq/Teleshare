@@ -58,20 +58,57 @@ Main config
 - PRIVATE_REQUEST
 </details>
 
-#### QUICK DEPLOYMENT
+#### DEPLOYMENTS
+<details>
+<summary>Local Deployment</summary>
+
+1. Clone the repo
+```
+git clone https://github.com/zawsq/Teleshare.git
+```
+then change directory to Teleshare 
+```
+cd Teleshare
+```
+
+2. Create an .env file refer to [.env_example](.env_example) for referencee.
+
+3. Use "deploy.sh" if you don't wanna
+bother setting up python path. be sure to give deploy.sh a permission to run.
+```
+bash deploy.sh
+```
+
+4. Manually deployment
+install requirements
+```
+pip install requirements.txt
+```
+set python path
+```
+export PYTHONPATH="${PYTHONPATH}:$PWD"
+```
+change directory to bot
+```
+cd bot
+```
+start the bot
+```
+python main.py
+```
+
+</details>
+<details>
+<summary>Quick Deployment</summary>
+  
 Please edit the following "Environment Variable" and refer to [.env_example](.env_example) for reference.
 
-<details>
-<summary>KOYEB</summary>
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/zawsq/Teleshare/tree/heroku-deploy)
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
+
 </details>
 
-<details>
-<summary>HEROKU</summary>
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/zawsq/Teleshare/tree/heroku-deploy)
-</details>
 
 <br>
 
