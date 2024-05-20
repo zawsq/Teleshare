@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from pymongo.errors import ConfigurationError
 
 from .database import MongoDB
-from .database.models import FltId, PipeMatch, UpdSet
 
 
 class SettingsModel(BaseModel):
@@ -30,7 +29,7 @@ class Options:
 
         Parameters:
             self.settings:
-                Initialized as None.
+                Initialized as SettingsModel.
             self.collection:
                 The name of the collection.
             self.database:
@@ -55,29 +54,22 @@ class Options:
         Example:
             await self.load_settings()
         """
-        match = PipeMatch(
-            match=FltId(
-                _id=self.document_id,
-            ).model_dump(),
-        )
-        pipeline = [match.model_dump()]
+        pipeline = [{"$match": {"_id": self.document_id}}]
         settings_doc = await self.database.aggregate(collection=self.collection, pipeline=pipeline)
 
         if settings_doc:
             self.settings = SettingsModel(**settings_doc[0])
         else:
-            db_filter = FltId(_id=self.document_id).model_dump()
-            update = UpdSet(
-                _set=SettingsModel().model_dump(),
-            ).model_dump()
+            self.settings = SettingsModel()
 
-            set_default = await self.database.update_one(
-                collection=self.collection,
-                db_filter=db_filter,
-                update=update,
-            )
-            if set_default.acknowledged:
-                self.settings = SettingsModel()
+        update = {"$set": self.settings.model_dump()}
+        db_filter = {"_id": self.document_id}
+
+        await self.database.update_one(
+            collection=self.collection,
+            db_filter=db_filter,
+            update=update,
+        )
 
     async def update_settings(
         self,
@@ -117,8 +109,8 @@ class Options:
 
         model_key, model_value = key, getattr(self.settings, key)
 
-        db_filter = FltId(_id=self.document_id).model_dump()
-        update = UpdSet(_set={model_key: model_value}).model_dump()
+        db_filter = {"_id": self.document_id}
+        update = {"$set": {model_key: model_value}}
 
         await self.database.update_one(
             collection=self.collection,

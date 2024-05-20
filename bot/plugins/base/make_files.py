@@ -31,7 +31,7 @@ class MakeFilesCommand:
             {
                 "caption": message.caption.markdown if message.caption else None,
                 "file_id": file_type.file_id,
-                "file_name": file_type.file_name if hasattr(file_type, "file_name") else file_type.file_unique_id,
+                "file_name": getattr(file_type, "file_name", file_type.file_unique_id) or file_type.file_unique_id,
                 "message_id": message.id,
             },
         )

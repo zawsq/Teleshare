@@ -2,8 +2,10 @@ from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
+from bot.config import config
 from bot.database import MongoDB
 from bot.options import options
+from bot.utilities.helpers import DataEncoder, DataValidationError
 from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.pyrotools import FileResolverModel, Pyrotools
 from bot.utilities.schedule_manager import schedule_manager
@@ -21,11 +23,8 @@ async def file_start(
 ) -> Message:
     """
     Handle start command with file sharing.
-
-    decode_list structure (list):
-        [start with channel id, followed with message.id]
     """
-    if len(message.command) == 1:
+    if not message.command[1:]:
         await message.reply(text=options.settings.START_MESSAGE, quote=True)
         return message.stop_propagation()
 
@@ -39,9 +38,34 @@ async def file_start(
 
     base64_file_link = message.text.split(maxsplit=1)[1]
     file_document = await database.aggregate(collection="Files", pipeline=[{"$match": {"_id": base64_file_link}}])
+
     if not file_document:
-        await message.reply(text="Attempted to fetch files: Does not exist")
-        return message.stop_propagation()
+        try:
+            codex_message_ids = DataEncoder.codex_decode(
+                base64_string=base64_file_link,
+                backup_channel=config.BACKUP_CHANNEL,
+            )
+        except DataValidationError:
+            await message.reply(text="Attempted to resolve link: Got invalid link.")
+            return message.stop_propagation()
+
+        if len(codex_message_ids) == 1:
+            codex_files = await client.copy_message(
+                chat_id=message.chat.id,
+                from_chat_id=config.BACKUP_CHANNEL,
+                message_id=codex_message_ids[0],
+            )
+
+        else:
+            codex_files = await client.forward_messages(
+                chat_id=message.chat.id,
+                from_chat_id=config.BACKUP_CHANNEL,
+                message_ids=codex_message_ids,
+                hide_sender_name=True,
+            )
+        if not codex_files:
+            await message.reply(text="Attempted to fetch files: Does not exist.")
+            return message.stop_propagation()
 
     file_document = file_document[0]
     files = [FileResolverModel(**file) for file in file_document["files"]]
@@ -86,8 +110,13 @@ async def return_start(
 
     channels_n_invite = client.channels_n_invite  # type: ignore[reportAttributeAccessIssue]
     buttons = []
+
     for channel, invite in channels_n_invite.items():
         buttons.append([InlineKeyboardButton(text=channel, url=invite)])
+
+    if message.command[1:]:
+        link = f"https://t.me/{client.me.username}?start={message.command[1]}"  # type: ignore[reportOptionalMemberAccess]
+        buttons.append([InlineKeyboardButton(text="Try Again", url=link)])
 
     return await message.reply(
         text=options.settings.FORCE_SUB_MESSAGE,
