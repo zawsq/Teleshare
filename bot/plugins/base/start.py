@@ -50,36 +50,36 @@ async def file_start(
             return message.stop_propagation()
 
         if len(codex_message_ids) == 1:
-            codex_files = await client.copy_message(
+            send_files = await client.copy_message(
                 chat_id=message.chat.id,
                 from_chat_id=config.BACKUP_CHANNEL,
                 message_id=codex_message_ids[0],
             )
 
         else:
-            codex_files = await client.forward_messages(
+            send_files = await client.forward_messages(
                 chat_id=message.chat.id,
                 from_chat_id=config.BACKUP_CHANNEL,
                 message_ids=codex_message_ids,
                 hide_sender_name=True,
             )
-        if not codex_files:
+        if not send_files:
             await message.reply(text="Attempted to fetch files: Does not exist.")
             return message.stop_propagation()
-
-    file_document = file_document[0]
-    files = [FileResolverModel(**file) for file in file_document["files"]]
-
-    if len(files) == 1:
-        send_files = await Pyrotools.send_media(client=client, chat_id=message.chat.id, file_data=files[0])
     else:
-        file_origin = file_document["file_origin"]
-        send_files = await Pyrotools.send_media_group(
-            client=client,
-            chat_id=message.chat.id,
-            file_data=files,
-            file_origin=file_origin,
-        )
+        file_document = file_document[0]
+        files = [FileResolverModel(**file) for file in file_document["files"]]
+
+        if len(files) == 1:
+            send_files = await Pyrotools.send_media(client=client, chat_id=message.chat.id, file_data=files[0])
+        else:
+            file_origin = file_document["file_origin"]
+            send_files = await Pyrotools.send_media_group(
+                client=client,
+                chat_id=message.chat.id,
+                file_data=files,
+                file_origin=file_origin,
+            )
 
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
 
