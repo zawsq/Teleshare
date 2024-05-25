@@ -29,7 +29,7 @@
 - [ ] Toggle Backup.
 - [ ] Help command.
 - [ ] Toggle global mode.
-- [ ] In-built rate limiter.
+- [x] In-built rate limiter.
 - [x] Fully remove database models.
 - [ ] Tokenized access.
 - [x] Try again button.

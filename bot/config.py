@@ -30,18 +30,23 @@ class Config(BaseSettings):
     # Bot deploy config
     PORT: int = 8080
     HOSTNAME: str = "0.0.0.0"  # noqa: S104
+    HTTP_SERVER: bool = True
 
     API_ID: int
     API_HASH: str
     BOT_TOKEN: str
+    BOT_WORKER: int = 4
+    BOT_SESSION: str = "Zaws-File-Share"
+    BOT_MAX_MESSAGE_CACHE_SIZE: int = 4
 
     MONGO_DB_URL: MongoSRVDsn
+    MONGO_DB_NAME: str = "Zaws-File-Share"
 
     # Bot main config
     BACKUP_CHANNEL: int
     ROOT_ADMINS_ID: list[int]
-    FORCE_SUB_CHANNELS: list[int]
     PRIVATE_REQUEST: bool = False
+    FORCE_SUB_CHANNELS: list[int]
 
     model_config = SettingsConfigDict(
         env_file=f"{BASE_PATH}/.env",

@@ -55,7 +55,7 @@ class SendMedia:
             UnsupportedFileError: If the file type is unsupported.
         """
         file_type_data = FileId.decode(file_id=file_data.file_id)
-        methods: dict[str, Callable[[str, str, str], Any]] = {
+        methods: dict[str, Callable[..., Any]] = {
             "AUDIO": client.send_audio,
             "DOCUMENT": client.send_document,
             "PHOTO": client.send_photo,

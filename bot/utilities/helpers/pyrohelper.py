@@ -1,5 +1,6 @@
 from pyrogram import raw
 from pyrogram.client import Client
+from pyrogram.types import InlineKeyboardMarkup, Message
 
 from bot.config import config
 
@@ -61,3 +62,28 @@ class PyroHelper:
                 raise NoInviteLinkError(channel_id)
 
         return channels_n_invite
+
+    @staticmethod
+    async def option_message(  # noqa: PLR0913
+        client: Client,
+        message: Message,
+        option_key: str | int,
+        disable_web_page_preview: bool = False,  # noqa: FBT001, FBT002
+        quote: bool = False,  # noqa: FBT001, FBT002
+        reply_markup: InlineKeyboardMarkup | None = None,
+    ) -> Message:
+        if isinstance(option_key, int):
+            return await client.copy_message(
+                chat_id=message.chat.id,
+                from_chat_id=config.BACKUP_CHANNEL,
+                message_id=option_key,
+                reply_to_message_id=message.id,
+                reply_markup=reply_markup,  # pyright: ignore[reportArgumentType]
+            )
+
+        return await message.reply(
+            text=option_key,
+            reply_markup=reply_markup,
+            disable_web_page_preview=disable_web_page_preview,
+            quote=quote,
+        )

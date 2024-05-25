@@ -3,6 +3,7 @@ from pyrogram.client import Client
 from pyrogram.types import Message
 
 from bot.options import InvalidValueError, options
+from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
 
 DEFAULT_ARGUMENT = 1
@@ -22,6 +23,7 @@ ex. /option AUTO_DELETE_SECONDS"""
 @Client.on_message(
     filters.private & PyroFilters.admin() & filters.command("option"),
 )
+@RateLimiter.hybrid_limiter(func_count=1)
 async def option_config(client: Client, message: Message) -> Message | None:  # noqa: ARG001
     cmd = message.command
 

@@ -6,12 +6,12 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
 from bot.database import MongoDB
-from bot.utilities.helpers import DataEncoder
+from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 
 
 class MakeFilesCommand:
-    database: MongoDB = MongoDB("Zaws-File-Share")
+    database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
     files_cache: ClassVar[dict[int, list]] = {}
 
     @classmethod
@@ -46,6 +46,7 @@ class MakeFilesCommand:
         user_cache = [i["message_id"] for i in cls.files_cache[unique_id]]
 
         if not user_cache:
+            cls.files_cache.pop(unique_id)
             return await message.reply(text="No file inputs, stopping task.", quote=True)
 
         forwarded_messages = await client.forward_messages(
@@ -97,6 +98,7 @@ class MakeFilesCommand:
         convo_stop="/make_link",
     ),
 )
+@RateLimiter.hybrid_limiter(func_count=1)
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
     if message.convo_start:
         return await MakeFilesCommand.handle_convo_start(client=client, message=message)
