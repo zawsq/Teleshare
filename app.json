@@ -40,6 +40,18 @@
         "PRIVATE_REQUEST":{
             "description":"(boolen): require approval for request invitation",
             "value":"False"
+        },
+        "HTTP_SERVER":{
+            "description":"(boolen): enabled http server",
+            "value":"False"
+        },
+        "BOT_MAX_MESSAGE_CACHE_SIZE":{
+            "description":"(int): number of message to cache",
+            "value":"100"
+        },
+        "BOT_WORKER":{
+            "description":"(int): number of bot worker",
+            "value":"1"
         }
     },
     "buildpacks":[
