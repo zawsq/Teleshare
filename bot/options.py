@@ -2,19 +2,19 @@ import dns.resolver
 from pydantic import BaseModel
 from pymongo.errors import ConfigurationError
 
-from .database import MongoDB
+from bot.config import config
+from bot.database import MongoDB
 
 
 class SettingsModel(BaseModel):
-    FORCE_SUB_MESSAGE: str = "Please join the channel(s) first."
+    FORCE_SUB_MESSAGE: str | int = "Please join the channel(s) first."
+    START_MESSAGE: str | int = "I am a file-sharing bot."
+    USER_REPLY_TEXT: str | int = "idk"
 
-    START_MESSAGE: str = "I am a file-sharing bot."
-    CUSTOM_CAPTION: str = "This file(s) will be deleted within {} minutes"
-    USER_REPLY_TEXT: str = "idk"
-
+    AUTO_DELETE_MESSAGE: str = "This file(s) will be deleted within {} minutes"
     AUTO_DELETE_SECONDS: int = 300
-
     GLOBAL_MODE: bool = False
+    BACKUP_FILES: bool = False
 
 
 class InvalidValueError(Exception):
@@ -41,11 +41,11 @@ class Options:
         self.collection = "BotSettings"
         self.document_id = "MainOptions"
         try:
-            self.database = MongoDB("Zaws-File-Share")
+            self.database = MongoDB(database=config.MONGO_DB_NAME)
         except ConfigurationError:
             dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
             dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
-            self.database = MongoDB("Zaws-File-Share")
+            self.database = MongoDB(database=config.MONGO_DB_NAME)
 
     async def load_settings(self) -> None:
         """
@@ -97,11 +97,11 @@ class Options:
         Example:
             await self.update_settings(key="START_MESSAGE", value="Hello, I am a bot.")
         """
-        if not getattr(self.settings, key, None):
-            invalid = "Invalid-Key"
-            raise KeyError(invalid)
+        if key not in self.settings.__fields__:
+            raise KeyError(key)
 
-        if not isinstance(value, type(getattr(self.settings, key))):
+        annotation = self.settings.__fields__[key].annotation
+        if annotation is not None and not isinstance(value, annotation):
             raise InvalidValueError(key)
 
         setattr(self.settings, key, value)

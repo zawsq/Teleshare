@@ -6,12 +6,14 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
 from bot.database import MongoDB
-from bot.utilities.helpers import DataEncoder
+from bot.options import options
+from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
+from bot.utilities.pyrotools import HelpCmd
 
 
 class MakeFilesCommand:
-    database: MongoDB = MongoDB("Zaws-File-Share")
+    database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
     files_cache: ClassVar[dict[int, list]] = {}
 
     @classmethod
@@ -46,32 +48,36 @@ class MakeFilesCommand:
         user_cache = [i["message_id"] for i in cls.files_cache[unique_id]]
 
         if not user_cache:
+            cls.files_cache.pop(unique_id)
             return await message.reply(text="No file inputs, stopping task.", quote=True)
 
-        forwarded_messages = await client.forward_messages(
-            chat_id=config.BACKUP_CHANNEL,
-            from_chat_id=message.chat.id,
-            message_ids=user_cache,
-            hide_sender_name=True,
-        )
-
-        files_backup = []
-        for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-            file_type = msg.document or msg.video or msg.photo or msg.audio
-            files_backup.append(
-                {
-                    "caption": msg.caption.markdown if msg.caption else None,
-                    "file_id": file_type.file_id,
-                    "message_id": msg.id,
-                },
+        files_to_store = []
+        if options.settings.BACKUP_FILES:
+            forwarded_messages = await client.forward_messages(
+                chat_id=config.BACKUP_CHANNEL,
+                from_chat_id=message.chat.id,
+                message_ids=user_cache,
+                hide_sender_name=True,
             )
+
+            for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
+                file_type = msg.document or msg.video or msg.photo or msg.audio
+                files_to_store.append(
+                    {
+                        "caption": msg.caption.markdown if msg.caption else None,
+                        "file_id": file_type.file_id,
+                        "message_id": msg.id,
+                    },
+                )
+        else:
+            files_to_store = [{k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]]
 
         file_link = DataEncoder.encode_data(str(message.date))
         file_origin = config.BACKUP_CHANNEL
         await cls.database.update_one(
             collection="Files",
             db_filter={"_id": file_link},
-            update={"$set": {"file_origin": file_origin, "files": files_backup}},
+            update={"$set": {"file_origin": file_origin, "files": files_to_store}},
         )
 
         cls.files_cache.pop(unique_id)
@@ -97,7 +103,14 @@ class MakeFilesCommand:
         convo_stop="/make_link",
     ),
 )
+@RateLimiter.hybrid_limiter(func_count=1)
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
+    """Handles a conversation that receives files to generate an accessable file link.
+
+    **Usage:**
+        /make_files: initiate a conversation then send your files.
+        /make_link: wraps the conversation and generates a link.
+    """
     if message.convo_start:
         return await MakeFilesCommand.handle_convo_start(client=client, message=message)
     if message.conversation:
@@ -105,3 +118,11 @@ async def make_files_command_handler(client: Client, message: ConvoMessage) -> M
     if message.convo_stop:
         return await MakeFilesCommand.handle_convo_stop(client=client, message=message)
     return None
+
+
+HelpCmd.set_help(
+    command="make_files",
+    description=make_files_command_handler.__doc__,
+    allow_global=True,
+    allow_non_admin=False,
+)
