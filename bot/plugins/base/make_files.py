@@ -8,6 +8,7 @@ from bot.config import config
 from bot.database import MongoDB
 from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
+from bot.utilities.pyrotools import HelpCmd
 
 
 class MakeFilesCommand:
@@ -100,6 +101,12 @@ class MakeFilesCommand:
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
+    """Handles a conversation that receives files to generate an accessable file link.
+
+    **Usage:**
+        /make_files: initiate a conversation then send your files.
+        /make_link: wraps the conversation and generates a link.
+    """
     if message.convo_start:
         return await MakeFilesCommand.handle_convo_start(client=client, message=message)
     if message.conversation:
@@ -107,3 +114,11 @@ async def make_files_command_handler(client: Client, message: ConvoMessage) -> M
     if message.convo_stop:
         return await MakeFilesCommand.handle_convo_stop(client=client, message=message)
     return None
+
+
+HelpCmd.set_help(
+    command="make_files",
+    description=make_files_command_handler.__doc__,
+    allow_global=True,
+    allow_non_admin=True,
+)

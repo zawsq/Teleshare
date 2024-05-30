@@ -7,6 +7,7 @@ from bot.config import config
 from bot.database import MongoDB
 from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
+from bot.utilities.pyrotools import HelpCmd
 
 database = MongoDB(database=config.MONGO_DB_NAME)
 
@@ -59,15 +60,11 @@ async def message_copy_wrapper(
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def broadcast(client: Client, message: Message) -> Message:
-    """
-    Broadcasts a message to multiple users.
+    """Broadcasts a message to multiple subscribed users
+    this command may take awhile depending on user count.
 
-    Parameters:
-        client (Client): The Pyrogram client.
-        message (Message): The message to be broadcasted.
-
-    Returns:
-        Message: The broadcasted message information.
+    **Usage:**
+        create a message then reply with /broadcast to avoid typos.
     """
     if not message.reply_to_message:
         return await message.reply(text="Reply to a message with command /broadcast to avoid broadcasting typos.")
@@ -99,3 +96,11 @@ async def broadcast(client: Client, message: Message) -> Message:
     return await notice_message.edit(
         text=f">Broadcasting Finished:\nSuccessful: {successful}\nUnsuccessful: {unsuccessful}",
     )
+
+
+HelpCmd.set_help(
+    command="broadcast",
+    description=broadcast.__doc__,
+    allow_global=False,
+    allow_non_admin=False,
+)

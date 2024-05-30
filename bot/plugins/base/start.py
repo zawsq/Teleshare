@@ -7,7 +7,7 @@ from bot.database import MongoDB
 from bot.options import options
 from bot.utilities.helpers import DataEncoder, DataValidationError, PyroHelper, RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
-from bot.utilities.pyrotools import FileResolverModel, Pyrotools
+from bot.utilities.pyrotools import FileResolverModel, HelpCmd, Pyrotools
 from bot.utilities.schedule_manager import schedule_manager
 
 database = MongoDB(database=config.MONGO_DB_NAME)
@@ -23,7 +23,10 @@ async def file_start(
     message: Message,
 ) -> Message:
     """
-    Handle start command with file sharing.
+    Handle start command, it returns files if a link is included otherwise sends the user a request.
+
+    **Usage:**
+        /start [optional file_link]
     """
     if not message.command[1:]:
         await PyroHelper.option_message(client=client, message=message, option_key=options.settings.START_MESSAGE)
@@ -128,3 +131,11 @@ async def return_start(
         disable_web_page_preview=True,
         quote=True,
     )
+
+
+HelpCmd.set_help(
+    command="start",
+    description=file_start.__doc__,
+    allow_global=True,
+    allow_non_admin=True,
+)

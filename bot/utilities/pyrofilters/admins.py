@@ -21,4 +21,4 @@ class AdminsFilter:
 
             return False
 
-        return filters.create(func, "SubscriptionFilter")
+        return filters.create(func, "AdminFilter")

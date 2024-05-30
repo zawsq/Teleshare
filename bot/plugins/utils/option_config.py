@@ -5,6 +5,7 @@ from pyrogram.types import Message
 from bot.options import InvalidValueError, options
 from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
+from bot.utilities.pyrotools import HelpCmd
 
 DEFAULT_ARGUMENT = 1
 MISSING_ARGUMENT = 2
@@ -25,6 +26,16 @@ ex. /option AUTO_DELETE_SECONDS"""
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def option_config(client: Client, message: Message) -> Message | None:  # noqa: ARG001
+    """Use to configure database options
+
+    **Usage:**
+        /option key new_value
+        /option key [reply to a message]
+
+    **Example:**
+        /option AUTO_DELETE_SECONDS 600
+    """
+
     cmd = message.command
 
     if len(cmd) == DEFAULT_ARGUMENT:
@@ -55,3 +66,11 @@ async def option_config(client: Client, message: Message) -> Message | None:  # 
         )
 
     return final_message
+
+
+HelpCmd.set_help(
+    command="option",
+    description=option_config.__doc__,
+    allow_global=False,
+    allow_non_admin=False,
+)

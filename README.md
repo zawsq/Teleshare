@@ -27,7 +27,7 @@
 - [x] Quick deployments.
 - [x] Support common file types: `(doc,photo,vid,audio)`.
 - [ ] Toggle Backup.
-- [ ] Help command.
+- [x] Help command.
 - [ ] Toggle global mode.
 - [x] In-built rate limiter.
 - [x] Fully remove database models.
