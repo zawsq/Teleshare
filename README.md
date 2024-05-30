@@ -26,14 +26,14 @@
 - [x] Public mode.
 - [x] Quick deployments.
 - [x] Support common file types: `(doc,photo,vid,audio)`.
-- [ ] Toggle Backup.
+- [x] Toggle Backup.
 - [x] Help command.
 - [x] Toggle global mode.
 - [x] In-built rate limiter.
 - [x] Fully remove database models.
-- [ ] Tokenized access.
 - [x] Try again button.
 - [x] add codeXbots file-sharing link compatibility.
+- [ ] Tokenized access.
 
 #### START-UP REQUIREMENTS
 <details>

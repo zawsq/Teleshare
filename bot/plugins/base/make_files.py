@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
 from bot.database import MongoDB
+from bot.options import options
 from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 from bot.utilities.pyrotools import HelpCmd
@@ -50,30 +51,33 @@ class MakeFilesCommand:
             cls.files_cache.pop(unique_id)
             return await message.reply(text="No file inputs, stopping task.", quote=True)
 
-        forwarded_messages = await client.forward_messages(
-            chat_id=config.BACKUP_CHANNEL,
-            from_chat_id=message.chat.id,
-            message_ids=user_cache,
-            hide_sender_name=True,
-        )
-
-        files_backup = []
-        for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-            file_type = msg.document or msg.video or msg.photo or msg.audio
-            files_backup.append(
-                {
-                    "caption": msg.caption.markdown if msg.caption else None,
-                    "file_id": file_type.file_id,
-                    "message_id": msg.id,
-                },
+        files_to_store = []
+        if options.settings.BACKUP_FILES:
+            forwarded_messages = await client.forward_messages(
+                chat_id=config.BACKUP_CHANNEL,
+                from_chat_id=message.chat.id,
+                message_ids=user_cache,
+                hide_sender_name=True,
             )
+
+            for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
+                file_type = msg.document or msg.video or msg.photo or msg.audio
+                files_to_store.append(
+                    {
+                        "caption": msg.caption.markdown if msg.caption else None,
+                        "file_id": file_type.file_id,
+                        "message_id": msg.id,
+                    },
+                )
+        else:
+            files_to_store = [{k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]]
 
         file_link = DataEncoder.encode_data(str(message.date))
         file_origin = config.BACKUP_CHANNEL
         await cls.database.update_one(
             collection="Files",
             db_filter={"_id": file_link},
-            update={"$set": {"file_origin": file_origin, "files": files_backup}},
+            update={"$set": {"file_origin": file_origin, "files": files_to_store}},
         )
 
         cls.files_cache.pop(unique_id)
