@@ -8,13 +8,11 @@ from bot.database import MongoDB
 
 class SettingsModel(BaseModel):
     FORCE_SUB_MESSAGE: str | int = "Please join the channel(s) first."
-
     START_MESSAGE: str | int = "I am a file-sharing bot."
     USER_REPLY_TEXT: str | int = "idk"
+
     AUTO_DELETE_MESSAGE: str = "This file(s) will be deleted within {} minutes"
-
     AUTO_DELETE_SECONDS: int = 300
-
     GLOBAL_MODE: bool = False
     BACKUP_FILES: bool = False
 
@@ -99,11 +97,11 @@ class Options:
         Example:
             await self.update_settings(key="START_MESSAGE", value="Hello, I am a bot.")
         """
-        if not getattr(self.settings, key, None):
-            invalid = "Invalid-Key"
-            raise KeyError(invalid)
+        if key not in self.settings.__fields__:
+            raise KeyError(key)
 
-        if not isinstance(value, type(getattr(self.settings, key))):
+        annotation = self.settings.__fields__[key].annotation
+        if annotation is not None and not isinstance(value, annotation):
             raise InvalidValueError(key)
 
         setattr(self.settings, key, value)

@@ -120,5 +120,5 @@ HelpCmd.set_help(
     command="make_files",
     description=make_files_command_handler.__doc__,
     allow_global=True,
-    allow_non_admin=True,
+    allow_non_admin=False,
 )

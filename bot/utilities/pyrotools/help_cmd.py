@@ -32,10 +32,10 @@ class HelpCmd:
                 The description of the command.
 
             allow_global (bool):
-                Commands that can be  used by none admin if global mode is enabled in options
+                Commands that can be  used by none admin if global mode is enabled in options.
 
             allow_non_admin (bool):
-                Commands that is only available to non admin users
+                Commands that is only available to non admin users and if global mode is disabled in option.
 
 
         Returns: None

@@ -28,7 +28,7 @@
 - [x] Support common file types: `(doc,photo,vid,audio)`.
 - [ ] Toggle Backup.
 - [x] Help command.
-- [ ] Toggle global mode.
+- [x] Toggle global mode.
 - [x] In-built rate limiter.
 - [x] Fully remove database models.
 - [ ] Tokenized access.
@@ -49,13 +49,18 @@
 - BOT_TOKEN
 
 [Mongo database](https://www.mongodb.com)
-- MONGO_DB_URL = mongodb://http
+- MONGO_DB_URL = mongodb+srv
+
+Bot Config
+- BOT_WORKER (int): amount of bot workers, default to 4.
+- BOT_SESSION (int): bot session name, reads from bot directory.
+- BOT_MAX_MESSAGE_CACHE_SIZE (int): amount of message to cache, recommended to cache more than a thousand if your bot is big enough due to scheduling. defaults to 4.
 
 Main config
-- BACKUP_CHANNEL
-- ROOT_ADMINS_ID
-- FORCE_SUB_CHANNELS
-- PRIVATE_REQUEST
+- BACKUP_CHANNEL (int): file backup channel.
+- ROOT_ADMINS_ID (list[int]): bot admins.
+- PRIVATE_REQUEST (bool): enable private request on private channel/group.
+- FORCE_SUB_CHANNELS (list[int]): force subscription channels.
 </details>
 
 #### DEPLOYMENTS

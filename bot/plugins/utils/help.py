@@ -7,7 +7,6 @@ from pyrogram.types import Message
 from bot.config import config
 from bot.options import options
 from bot.utilities.helpers import RateLimiter
-from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.pyrotools import HelpCmd
 
 
@@ -34,7 +33,7 @@ async def help_command(client: Client, message: Message) -> Message:  # noqa: AR
         )
 
         format_cmds = "\n".join(available_commands)
-        instructions = f"List of all available commands:```\n{format_cmds}```\n\n{cleandoc(help_command.__doc__) if help_command.__doc__ else ''}"
+        instructions = f"List of all available commands:```\n{format_cmds}```\n\n{cleandoc(help_command.__doc__) if help_command.__doc__ else ''}"  # noqa: E501
 
         return await message.reply(text=instructions, quote=True)
 
