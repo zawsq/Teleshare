@@ -73,7 +73,7 @@ class MakeFilesCommand:
             files_to_store = [{k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]]
 
         file_link = DataEncoder.encode_data(str(message.date))
-        file_origin = config.BACKUP_CHANNEL
+        file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
         await cls.database.update_one(
             collection="Files",
             db_filter={"_id": file_link},

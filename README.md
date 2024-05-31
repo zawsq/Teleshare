@@ -46,15 +46,30 @@
 - MONGO_DB_URL = mongodb+srv
 
 Bot Config
-- BOT_WORKER (int): amount of bot workers, default to 4.
-- BOT_SESSION (int): bot session name, reads from bot directory.
-- BOT_MAX_MESSAGE_CACHE_SIZE (int): amount of message to cache, recommended to cache more than a thousand if your bot is big enough due to scheduling. defaults to 4.
+- `BOT_WORKER (int)`: amount of bot workers, default to 8.
+- `BOT_SESSION (int)`: bot session name, reads from bot directory.
+- `BOT_MAX_MESSAGE_CACHE_SIZE (int)`: amount of message to cache, recommended to cache more than a thousand if your bot is big enough due to scheduling. defaults to 100.
 
 Main config
-- BACKUP_CHANNEL (int): file backup channel.
-- ROOT_ADMINS_ID (list[int]): bot admins.
-- PRIVATE_REQUEST (bool): enable private request on private channel/group.
-- FORCE_SUB_CHANNELS (list[int]): force subscription channels.
+- `BACKUP_CHANNEL (int)`: file backup channel.
+- `ROOT_ADMINS_ID (list[int])`: bot admins.
+- `PRIVATE_REQUEST (bool)`: enable private request on private channel/group.
+- `FORCE_SUB_CHANNELS (list[int])`: force subscription channels.
+</details>
+
+<details>
+<summary>Bot options</summary>
+
+configure through `/option` command or use `/help option` for more information.
+
+Usage:
+
+    /option key new_value
+    /option key [reply to a message]
+Example:
+
+    /option AUTO_DELETE_SECONDS 600
+    /option FORCE_SUB_MESSAGE: reply to a message.
 </details>
 
 #### DEPLOYMENTS
