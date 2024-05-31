@@ -78,6 +78,10 @@ class DataEncoder:
 
             decoded_ids = decode_data.split("-")
 
-            return [int(int(i) / abs(backup_channel)) for i in decoded_ids[1:]]
+            range_ids = [int(int(i) / abs(backup_channel)) for i in decoded_ids[1:]]
+
+            if len(range_ids) == 1:
+                return range_ids
+            return list(range(range_ids[0], range_ids[1] + 1))
         except (binascii.Error, ValueError) as exc:
             raise DataValidationError(base64_string) from exc
