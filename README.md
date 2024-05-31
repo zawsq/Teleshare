@@ -60,6 +60,16 @@ Main config
 <details>
 <summary>Bot options</summary>
 
+Set:
+- `FORCE_SUB_MESSAGE (str|int)`: message during force subscription.
+- `START_MESSAGE (str|int)`: a start message 
+- `AUTO_DELETE_MESSAGE (str)`: an auto delete messages, {} is the amount of minutes.
+
+- `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
+- `GLOBAL_MODE (bool)`: toggle everyone to generate a file link.
+- `BACKUP_FILES (bool)`: toggle all files to back up.
+
+
 configure through `/option` command or use `/help option` for more information.
 
 Usage:
