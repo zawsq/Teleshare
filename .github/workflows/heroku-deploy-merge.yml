@@ -6,14 +6,6 @@ on:
       - main
 
 jobs:
-  set-git-user:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set Git user
-        run: |
-          git config --global user.email "idk@users.noreply.github.com"
-          git config --global user.name "No Name"
-
   merge-branches:
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +16,8 @@ jobs:
 
       - name: Merge main into heroku-deploy
         run: |
+          git config --global user.email "idk@users.noreply.github.com"
+          git config --global user.name "No Name"
           git checkout heroku-deploy
           git merge --no-commit main
           git push origin heroku-deploy
