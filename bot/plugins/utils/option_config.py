@@ -41,7 +41,7 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
             quote=True,
         )
 
-    key = cmd[1]
+    key = cmd[1].upper()
 
     if len(cmd) == MISSING_ARGUMENT and not message.reply_to_message:
         return await message.reply(text=f"missing arguments:\n{option_config_cmd.__doc__}", quote=True)
@@ -55,7 +55,7 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
             copyied_mssg = await message.reply_to_message.copy(config.BACKUP_CHANNEL)
             values = str(copyied_mssg.id if isinstance(copyied_mssg, Message) else values)
     else:
-        values = " ".join(cmd[2:])
+        values = (message.text.markdown.split(maxsplit=2)[2:])[0].lstrip()
 
     try:
         change_value = int(values) if values.isdigit() else BOOLEN_CONVERT.get(values.lower(), values)
@@ -64,7 +64,10 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
         options_configs = update.model_dump()
         format_options = "\n".join(f"**{key}** ```\n{value}```" for key, value in options_configs.items())
 
-        final_message = await message.reply(text=f"Updated:\n{format_options}", quote=True)
+        final_message = await message.reply(
+            text=f"Updated:\n{format_options}\n\n__Note: if you see number instead of text it means it set a message to copy (this happens if you use reply to a message while setting the option key)__",  # noqa: E501
+            quote=True,
+        )
     except InvalidValueError:
         final_message = await message.reply(
             text="Please provide an existing key with int or digit for int value and str for str values",
