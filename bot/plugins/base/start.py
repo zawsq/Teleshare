@@ -90,9 +90,17 @@ async def file_start(
     if delete_n_seconds != 0:
         schedule_delete_message = [msg.id for msg in send_files] if isinstance(send_files, list) else [send_files.id]
 
-        custom_caption = options.settings.AUTO_DELETE_MESSAGE
-        forward_caption = await message.reply(text=custom_caption.format(int(delete_n_seconds / 60)))
-        schedule_delete_message.append(forward_caption.id)
+        auto_delete_message = (
+            options.settings.AUTO_DELETE_MESSAGE.format(int(delete_n_seconds / 60))
+            if not isinstance(options.settings.AUTO_DELETE_MESSAGE, int)
+            else options.settings.AUTO_DELETE_MESSAGE
+        )
+        auto_delete_message_reply = await PyroHelper.option_message(
+            client=client,
+            message=message,
+            option_key=auto_delete_message,
+        )
+        schedule_delete_message.append(auto_delete_message_reply.id)
 
         await schedule_manager.schedule_delete(
             client=client,

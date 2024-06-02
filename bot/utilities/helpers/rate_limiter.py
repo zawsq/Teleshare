@@ -92,6 +92,7 @@ class RateLimiter:
                     wait_time_minute = 60 - elapsed_time_minute
                     sleep_time = max(wait_time_second, wait_time_minute)
                     cls.logger.info("Waiting for %d seconds... before next execution", sleep_time)
+
                     await asyncio.sleep(max(wait_time_second, wait_time_minute))
 
             return wrapper
