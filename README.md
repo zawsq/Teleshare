@@ -3,13 +3,14 @@
 
 #### DEMO: [BOT LINK](https://t.me/TelezhareBot?start=IjIwMjQtMDUtMzAgMjM6NTM6Mjci)
 #### FEATURES
-- Automatic file backup.
-- Automatic message deletion.
-- Easy to set up.
-- Fast and efficient.
+- CodeXbotz links compatibility.
 - Fully asynchronous.
 - Highly configurable.
+- In-built rate limiter.
 - Multi-channel force subscription.
+- Quick Deployment.
+- Toggleable auto file backup.
+- Toggleable auto message delete.
 - Type-hinted for improved code readability.
 - User-friendly interface.
 
@@ -74,7 +75,7 @@ Main config
 Set:
 - `FORCE_SUB_MESSAGE (str|int)`: message during force subscription.
 - `START_MESSAGE (str|int)`: a start message 
-- `AUTO_DELETE_MESSAGE (str)`: an auto delete messages, {} is the amount of minutes.
+- `AUTO_DELETE_MESSAGE (str|int)`: an auto delete messages, {} is the amount of minutes.
 
 - `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
 - `GLOBAL_MODE (bool)`: toggle everyone to generate a file link.
