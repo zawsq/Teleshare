@@ -1,0 +1,21 @@
+name: Auto merge main to heroku-deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  merge-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Merge main into heroku-deploy
+        run: |
+          git checkout heroku-deploy
+          git merge --no-commit main
+          git push origin heroku-deploy
