@@ -1,6 +1,7 @@
 <p align="center"><b>TELESHARE</b></p>
 <p align="center">A efficient and configurable telegram file sharing bot</p>
 
+#### DEMO: [BOT LINK](https://t.me/TelezhareBot?start=IjIwMjQtMDUtMzAgMjM6NTM6Mjci)
 #### FEATURES
 - Automatic file backup.
 - Automatic message deletion.
@@ -28,6 +29,16 @@
 - [x] Try again button.
 - [x] add codeXbots file-sharing link compatibility.
 - [ ] Tokenized access.
+
+#### Frequently Asked Questions
+<details>
+<summary>FAQS</summary>
+1. How do i disable automatic deletation:
+
+```
+/option AUTO_DELETE_SECONDS 0
+```
+</details>
 
 #### START-UP REQUIREMENTS
 <details>
