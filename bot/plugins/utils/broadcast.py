@@ -40,7 +40,7 @@ async def broadcast_sender(
 
     for user_id in list(set(user_ids + user_ids_codex)):
         try:
-            await message_copy_wrapper(client=client, message=message.reply_to_message, chat_id=user_id)
+            await message_copy_wrapper(client=client, message=message, chat_id=user_id)
             successful += 1
         except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
             unsuccessful_ids.append(user_id) if user_id in user_ids else unsuccessful_ids_codex.append(user_id)
