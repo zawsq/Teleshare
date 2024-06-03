@@ -13,8 +13,12 @@ database = MongoDB(database=config.MONGO_DB_NAME)
 
 
 @RateLimiter.hybrid_limiter(func_count=1)
-async def message_copy_wrapper(
-    client: Client,  # noqa: ARG001
+async def message_copy_wrapper(client: Client, message: Message, chat_id: int) -> None:  # noqa: ARG001
+    await message.reply_to_message.copy(chat_id)
+
+
+async def broadcast_sender(
+    client: Client,
     message: Message,
     user_ids: list,
     user_ids_codex: list,
@@ -36,7 +40,7 @@ async def message_copy_wrapper(
 
     for user_id in list(set(user_ids + user_ids_codex)):
         try:
-            await message.reply_to_message.copy(user_id)
+            await message_copy_wrapper(client=client, message=message.reply_to_message, chat_id=user_id)
             successful += 1
         except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
             unsuccessful_ids.append(user_id) if user_id in user_ids else unsuccessful_ids_codex.append(user_id)
@@ -83,7 +87,7 @@ async def broadcast(client: Client, message: Message) -> Message:
 
     notice_message = await message.reply(text="Currently broadcasting... This may take a while.", quote=True)
 
-    result = await message_copy_wrapper(
+    result = await broadcast_sender(
         client=client,
         message=message,
         user_ids=user_ids,
