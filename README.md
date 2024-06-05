@@ -8,6 +8,7 @@
 - Highly configurable.
 - In-built rate limiter.
 - Multi-channel force subscription.
+- Protect content.
 - Quick Deployment.
 - Toggleable auto file backup.
 - Toggleable auto message delete.

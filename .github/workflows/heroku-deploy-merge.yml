@@ -16,10 +16,9 @@ jobs:
 
       - name: Merge main into heroku-deploy
         run: |
-          git config --global user.email "idk@users.noreply.github.com"
+          git config --global user.email "zawsq@users.noreply.github.com"
           git config --global user.name "No Name"
           
-          git branch -a
           git checkout heroku-deploy
-          git merge --no-commit main
+          git merge --no-ff main
           git push origin heroku-deploy
