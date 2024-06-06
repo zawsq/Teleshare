@@ -39,7 +39,13 @@ class SendMedia:
     """
 
     @classmethod
-    async def send_media(cls, client: Client, chat_id: int, file_data: FileResolverModel) -> Message:
+    async def send_media(
+        cls,
+        client: Client,
+        chat_id: int,
+        file_data: FileResolverModel,
+        protect_content: bool,  # noqa: FBT001
+    ) -> Message:
         """
         Sends a media file.
 
@@ -68,6 +74,7 @@ class SendMedia:
                     "chat_id": chat_id,
                     file_type.lower(): file_data.file_id,
                     "caption": file_data.caption or "",
+                    "protect_content": protect_content,
                 }
                 return await methods[file_type](
                     **file_kwargs,  # pyright: ignore[reportCallIssue]
@@ -77,12 +84,13 @@ class SendMedia:
         raise UnsupportedFileError(file_type_data)
 
     @classmethod
-    async def send_media_group(
+    async def send_media_group(  # noqa: PLR0913
         cls,
         client: Client,
         chat_id: int,
         file_data: list[FileResolverModel],
         file_origin: int,
+        protect_content: bool,  # noqa: FBT001
     ) -> Message | list[Message]:
         """
         Sends a media group.
@@ -110,6 +118,8 @@ class SendMedia:
         send_files_message = []
         for i in file_data:
             with contextlib.suppress(UnsupportedFileError):
-                send_files_message.append(await cls.send_media(client=client, chat_id=chat_id, file_data=i))
+                send_files_message.append(
+                    await cls.send_media(client=client, chat_id=chat_id, file_data=i, protect_content=protect_content),
+                )
 
         return send_files_message
