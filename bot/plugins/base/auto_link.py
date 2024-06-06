@@ -13,10 +13,10 @@ database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
 
 
 @Client.on_message(
-    filters.private & PyroFilters.admin(allow_global=True) & filters.audio
-    | filters.photo
-    | filters.video
-    | filters.document,
+    filters.private
+    & PyroFilters.admin(allow_global=True)
+    & PyroFilters.user_not_in_conversation()
+    & (filters.audio | filters.photo | filters.video | filters.document),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None:
