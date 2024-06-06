@@ -13,6 +13,62 @@ from bot.utilities.schedule_manager import schedule_manager
 database = MongoDB(database=config.MONGO_DB_NAME)
 
 
+class FileSender:
+    """Used to manage file sending functions between codexbotz and teleshare."""
+
+    @staticmethod
+    async def codexbotz(
+        client: Client,
+        codex_message_ids: list[int],
+        chat_id: int,
+        from_chat_id: int,
+        protect_content: bool,  # noqa: FBT001
+    ) -> Message | list[Message]:
+        if len(codex_message_ids) == 1:
+            send_files = await client.copy_message(
+                chat_id=chat_id,
+                from_chat_id=from_chat_id,
+                message_id=codex_message_ids[0],
+                protect_content=protect_content,
+            )
+
+        else:
+            send_files = await client.forward_messages(
+                chat_id=chat_id,
+                from_chat_id=from_chat_id,
+                message_ids=codex_message_ids,
+                hide_sender_name=True,
+                protect_content=protect_content,
+            )
+
+        return send_files
+
+    @staticmethod
+    async def teleshare(
+        client: Client,
+        chat_id: int,
+        file_data: list[FileResolverModel],
+        file_origin: int,
+        protect_content: bool,  # noqa: FBT001
+    ) -> Message | list[Message]:
+        if len(file_data) == 1:
+            send_files = await Pyrotools.send_media(
+                client=client,
+                chat_id=chat_id,
+                file_data=file_data[0],
+                protect_content=protect_content,
+            )
+        else:
+            send_files = await Pyrotools.send_media_group(
+                client=client,
+                chat_id=chat_id,
+                file_data=file_data,
+                file_origin=file_origin,
+                protect_content=protect_content,
+            )
+        return send_files
+
+
 @Client.on_message(
     filters.command("start") & filters.private & PyroFilters.subscription(),
     group=0,
@@ -53,37 +109,28 @@ async def file_start(
             await message.reply(text="Attempted to resolve link: Got invalid link.")
             return message.stop_propagation()
 
-        if len(codex_message_ids) == 1:
-            send_files = await client.copy_message(
-                chat_id=message.chat.id,
-                from_chat_id=config.BACKUP_CHANNEL,
-                message_id=codex_message_ids[0],
-            )
-
-        else:
-            send_files = await client.forward_messages(
-                chat_id=message.chat.id,
-                from_chat_id=config.BACKUP_CHANNEL,
-                message_ids=codex_message_ids,
-                hide_sender_name=True,
-            )
+        send_files = await FileSender.codexbotz(
+            client=client,
+            codex_message_ids=codex_message_ids,
+            chat_id=message.chat.id,
+            from_chat_id=config.BACKUP_CHANNEL,
+            protect_content=config.PROTECT_CONTENT,
+        )
         if not send_files:
             await message.reply(text="Attempted to fetch files: Does not exist.")
             return message.stop_propagation()
     else:
         file_document = file_document[0]
-        files = [FileResolverModel(**file) for file in file_document["files"]]
+        file_origin = file_document["file_origin"]
+        file_data = [FileResolverModel(**file) for file in file_document["files"]]
 
-        if len(files) == 1:
-            send_files = await Pyrotools.send_media(client=client, chat_id=message.chat.id, file_data=files[0])
-        else:
-            file_origin = file_document["file_origin"]
-            send_files = await Pyrotools.send_media_group(
-                client=client,
-                chat_id=message.chat.id,
-                file_data=files,
-                file_origin=file_origin,
-            )
+        send_files = await FileSender.teleshare(
+            client=client,
+            chat_id=message.chat.id,
+            file_data=file_data,
+            file_origin=file_origin,
+            protect_content=config.PROTECT_CONTENT,
+        )
 
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
 
