@@ -29,6 +29,7 @@
 - [x] In-built rate limiter.
 - [x] Fully remove database models.
 - [x] Try again button.
+- [x] Auto link generator.
 - [x] add codeXbots file-sharing link compatibility.
 - [ ] Tokenized access.
 
@@ -118,13 +119,22 @@ bash deploy.sh
 ```
 
 4. Manually deployment
-install requirements
-```
-pip install requirements.txt
-```
 set python path
 ```
 export PYTHONPATH="${PYTHONPATH}:$PWD"
+```
+or create an python environment (poetry / virtualenv)
+```
+pip install virtualenv
+virtualenv myenv
+
+source myenv/bin/activate
+windows:
+myenv\Scripts\activate
+```
+install requirements
+```
+pip install requirements.txt
 ```
 change directory to bot
 ```
@@ -134,8 +144,6 @@ start the bot
 ```
 python main.py
 ```
-
-5. You can also create an environment so you don't need to set path.
 
 </details>
 <details>
