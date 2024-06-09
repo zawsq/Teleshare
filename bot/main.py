@@ -1,3 +1,7 @@
+import pyrogram.utils
+
+pyrogram.utils.MIN_CHANNEL_ID = -1002103543460
+
 import asyncio
 import logging
 import sys
