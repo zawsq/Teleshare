@@ -102,7 +102,7 @@ Example:
 
 1. Clone the repo
 ```
-git clone https://github.com/zawsq/Teleshare.git
+git clone https://github.com/PFMBOTS/Teleshare.git
 ```
 then change directory to Teleshare 
 ```
