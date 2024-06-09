@@ -22,6 +22,9 @@ database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
 async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None:
     """Handle files that is send or forwarded directly to the bot and generate a link for it."""
 
+    if getattr(client.me, "id", None) == message.from_user.id:
+        return None
+
     file_type = message.document or message.video or message.photo or message.audio
     message_id = message.id
 

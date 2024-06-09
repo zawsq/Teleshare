@@ -19,6 +19,7 @@ from pydantic_settings import (
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
+from pydantic_settings.sources import SettingsError
 
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
@@ -70,6 +71,6 @@ class Config(BaseSettings):
 
 try:
     config = Config()  # type: ignore[reportCallIssue]
-except ValidationError:
+except (ValidationError, SettingsError):
     logging.exception("Configuration Error")
-    sys.exit()
+    sys.exit(1)
