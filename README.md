@@ -61,12 +61,13 @@
 Bot Config
 - `BOT_WORKER (int)`: amount of bot workers, default to 8.
 - `BOT_SESSION (int)`: bot session name, reads from bot directory.
-- `BOT_MAX_MESSAGE_CACHE_SIZE (int)`: amount of message to cache, recommended to cache more than a thousand if your bot is big enough due to scheduling. defaults to 100.
+- `BOT_MAX_MESSAGE_CACHE_SIZE (int)`: amount of message to cache, recommended to cache more than a thousand if your bot is big enough due to scheduling. default to 100.
 
 Main config
 - `BACKUP_CHANNEL (int)`: file backup channel.
 - `ROOT_ADMINS_ID (list[int])`: bot admins.
-- `PRIVATE_REQUEST (bool)`: enable private request on private channel/group.
+- `PRIVATE_REQUEST (bool)`: enable private request on private channel/group. default to `False`
+- `PROTECT_CONTENT (bool)`: disalllow forwarding and saving of files sent by the bot. default to `True`
 - `FORCE_SUB_CHANNELS (list[int])`: force subscription channels.
 </details>
 
@@ -133,6 +134,8 @@ start the bot
 ```
 python main.py
 ```
+
+5. You can also create an environment so you don't need to set path.
 
 </details>
 <details>
