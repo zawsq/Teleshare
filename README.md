@@ -29,8 +29,18 @@
 - [x] In-built rate limiter.
 - [x] Fully remove database models.
 - [x] Try again button.
+- [x] Auto link generator.
 - [x] add codeXbots file-sharing link compatibility.
 - [ ] Tokenized access.
+
+#### CURRENT AVAILABLE COMMANDS:
+Use: `/help [command name]` for more informations.
+
+1. `/make_files`: Handles a conversation that receives files to generate an accessable file link.
+2. `/start`: Handle start command, it returns files if a link is included otherwise sends the user a request.
+3. `/broadcast`: Broadcasts a message to multiple subscribed users
+this command may take awhile depending on user count.
+4. `/option`: Use to configure database options. See [START-UP REQUIREMENTS](#start-up-requirements) bot options for more informations.
 
 #### Frequently Asked Questions
 <details>
@@ -118,13 +128,22 @@ bash deploy.sh
 ```
 
 4. Manually deployment
-install requirements
-```
-pip install requirements.txt
-```
 set python path
 ```
 export PYTHONPATH="${PYTHONPATH}:$PWD"
+```
+or create an python environment (poetry / virtualenv)
+```
+pip install virtualenv
+virtualenv myenv
+
+source myenv/bin/activate
+windows:
+myenv\Scripts\activate
+```
+install requirements
+```
+pip install requirements.txt
 ```
 change directory to bot
 ```
@@ -134,8 +153,6 @@ start the bot
 ```
 python main.py
 ```
-
-5. You can also create an environment so you don't need to set path.
 
 </details>
 <details>
