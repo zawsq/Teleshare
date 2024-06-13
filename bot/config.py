@@ -49,6 +49,7 @@ class Config(BaseSettings):
     PRIVATE_REQUEST: bool = False
     PROTECT_CONTENT: bool = True
     FORCE_SUB_CHANNELS: list[int]
+    AUTO_GENERATE_LINK: bool = True
 
     model_config = SettingsConfigDict(
         env_file=f"{BASE_PATH}/.env",
