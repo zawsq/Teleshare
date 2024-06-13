@@ -76,9 +76,10 @@ Bot Config
 Main config
 - `BACKUP_CHANNEL (int)`: file backup channel.
 - `ROOT_ADMINS_ID (list[int])`: bot admins.
-- `PRIVATE_REQUEST (bool)`: enable private request on private channel/group. default to `False`
-- `PROTECT_CONTENT (bool)`: disalllow forwarding and saving of files sent by the bot. default to `True`
+- `PRIVATE_REQUEST (bool)`: enable private request on private channel/group. default to `False`.
+- `PROTECT_CONTENT (bool)`: disalllow forwarding and saving of files sent by the bot. default to `True`.
 - `FORCE_SUB_CHANNELS (list[int])`: force subscription channels.
+- `AUTO_GENERATE_LINK`: toggle auto link generator when file is recieve directly. defaults to `True`.
 </details>
 
 <details>
