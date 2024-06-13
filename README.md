@@ -79,7 +79,7 @@ Main config
 - `PRIVATE_REQUEST (bool)`: enable private request on private channel/group. default to `False`.
 - `PROTECT_CONTENT (bool)`: disalllow forwarding and saving of files sent by the bot. default to `True`.
 - `FORCE_SUB_CHANNELS (list[int])`: force subscription channels.
-- `AUTO_GENERATE_LINK`: toggle auto link generator when file is recieve directly. defaults to `True`.
+- `AUTO_GENERATE_LINK`: toggle auto link generator when file is recieve directly. default to `True`.
 </details>
 
 <details>
