@@ -39,7 +39,7 @@ async def main() -> None:
         api_hash=config.API_HASH,
         bot_token=config.BOT_TOKEN,
         workers=config.BOT_WORKER,
-        plugins={"root": "plugins"},
+        plugins={"root": f"{__package__}/plugins" if __package__ else "plugins"},
         max_message_cache_size=config.BOT_MAX_MESSAGE_CACHE_SIZE,
     )
 

@@ -9,6 +9,8 @@ from lru import LRU
 from pyrogram.client import Client
 from pyrogram.types import Message
 
+from config import config
+
 
 class RateLimiter:
     """
@@ -63,6 +65,9 @@ class RateLimiter:
                 Returns:
                     bool: The result of the function execution.
                 """
+
+                if not config.RATE_LIMITER:
+                    return await func(client, message, *args, **kwargs)
 
                 chat_id = message.chat.id
                 while True:

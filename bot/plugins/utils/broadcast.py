@@ -1,6 +1,8 @@
+import asyncio
+
 from pyrogram import filters
 from pyrogram.client import Client
-from pyrogram.errors import InputUserDeactivated, PeerIdInvalid, UserIsBlocked
+from pyrogram.errors import FloodWait, InputUserDeactivated, PeerIdInvalid, UserIsBlocked
 from pyrogram.types import Message
 
 from bot.config import config
@@ -14,7 +16,11 @@ database = MongoDB(database=config.MONGO_DB_NAME)
 
 @RateLimiter.hybrid_limiter(func_count=1)
 async def message_copy_wrapper(client: Client, message: Message, chat_id: int) -> None:  # noqa: ARG001
-    await message.reply_to_message.copy(chat_id)
+    try:
+        await message.reply_to_message.copy(chat_id)
+    except FloodWait as e:
+        await asyncio.sleep(e.value)  # pyright: ignore[reportArgumentType]
+        await message.reply_to_message.copy(chat_id)
 
 
 async def broadcast_sender(
@@ -40,6 +46,7 @@ async def broadcast_sender(
 
     for user_id in list(set(user_ids + user_ids_codex)):
         try:
+            message.chat.id = user_id
             await message_copy_wrapper(client=client, message=message, chat_id=user_id)
             successful += 1
         except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
