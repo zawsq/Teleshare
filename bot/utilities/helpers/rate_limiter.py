@@ -14,7 +14,7 @@ from bot.config import config
 
 class RateLimiter:
     """
-    A experimental pyrogram rate limiter which use to limit the amount of update or command that bot handles per chat messages.
+    A experimental pyrogram rate limiter which use to limit the amount of update or command that bot handles.
 
     Attributes:
         MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT (ClassVar[int]):
