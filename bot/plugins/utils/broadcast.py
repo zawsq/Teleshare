@@ -14,56 +14,65 @@ from bot.utilities.pyrotools import HelpCmd
 database = MongoDB(database=config.MONGO_DB_NAME)
 
 
-@RateLimiter.hybrid_limiter(func_count=1)
-async def message_copy_wrapper(client: Client, message: Message, chat_id: int) -> None:  # noqa: ARG001
-    try:
-        await message.reply_to_message.copy(chat_id)
-    except FloodWait as e:
-        await asyncio.sleep(e.value)  # pyright: ignore[reportArgumentType]
-        await message.reply_to_message.copy(chat_id)
+class BroadcastHandler:
+    """A handler class for broadcasting messages to multiple users."""
 
+    @staticmethod
+    @RateLimiter.hybrid_limiter(func_count=1)
+    async def message_copy_wrapper(client: Client, message: Message, chat_id: int) -> None:  # noqa: ARG004
+        """Wrapper method to handle copying message to specified chat ID that follows rate limiter..
 
-async def broadcast_sender(
-    client: Client,
-    message: Message,
-    user_ids: list,
-    user_ids_codex: list,
-) -> dict:
-    """
-    Copies a message to broadcast on multiple users.
-
-    Parameters:
-        message (Message): The message to be copied.
-        user_ids (list): A list of user IDs to copy the message to.
-        user_ids_codex (list): A list of user IDs to copy the message to (codex).
-
-    Returns:
-        dict: A dictionary containing the number of successful and unsuccessful message copies.
-    """
-    successful = 0
-    unsuccessful_ids = []
-    unsuccessful_ids_codex = []
-
-    for user_id in list(set(user_ids + user_ids_codex)):
+        Parameters:
+            client (Client): The Pyrogram client instance.
+            message (Message): The message object to be copied.
+            chat_id (int): The ID of the chat to copy the message to.
+        """
         try:
-            message.chat.id = user_id
-            await message_copy_wrapper(client=client, message=message, chat_id=user_id)
-            successful += 1
-        except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
-            unsuccessful_ids.append(user_id) if user_id in user_ids else unsuccessful_ids_codex.append(user_id)
+            await message.reply_to_message.copy(chat_id)
+        except FloodWait as e:
+            await asyncio.sleep(e.value)  # pyright: ignore[reportArgumentType]
+            await message.reply_to_message.copy(chat_id)
 
-    if unsuccessful_ids:
-        await database.delete_many(
-            collection="Users",
-            db_filter={"_id": {"$in": unsuccessful_ids}},
-        )
-    if unsuccessful_ids_codex:
-        await database.delete_many(
-            collection="users",
-            db_filter={"_id": {"$in": unsuccessful_ids_codex}},
-        )
+    @staticmethod
+    async def cleanup_users(unsuccessful_ids: list, unsuccessful_ids_codex: list) -> None:
+        """Cleans up users from database based on their IDs.
 
-    return {"successful": successful, "unsuccessful": len(unsuccessful_ids + unsuccessful_ids_codex)}
+        Parameters:
+            unsuccessful_ids (list): List of user unsuccessful id from teleshare to be delete from the database.
+            unsuccessful_ids_codex (list): List of user unsuccessful id from CodeXbotz to be delete from the database.
+        """
+        if unsuccessful_ids:
+            await database.delete_many(collection="Users", db_filter={"_id": {"$in": unsuccessful_ids}})
+
+        if unsuccessful_ids_codex:
+            await database.delete_many(collection="users", db_filter={"_id": {"$in": unsuccessful_ids_codex}})
+
+    @classmethod
+    async def broadcast_sender(cls, client: Client, message: Message, user_ids: list, user_ids_codex: list) -> dict:
+        """
+        Sends a message to multiple users and handles success and failure counts.
+
+        Parameters:
+            client (Client): The Pyrogram client instance.
+            message (Message): The message object to be broadcasted.
+            user_ids (list): List of user IDs to send the message to from teleshare.
+            user_ids_codex (list): List of user IDs to send the message to from CodeXbotz.
+
+        Returns:
+            dict: Dictionary containing successful and unsuccessful message counts.
+        """
+        successful, unsuccessful_ids, unsuccessful_ids_codex = 0, [], []
+        for user_id in list(set(user_ids + user_ids_codex)):
+            try:
+                # Required so rate limiter from message_copy_wrapper() can properly handle it.
+                message.chat.id = user_id
+                await cls.message_copy_wrapper(client=client, message=message, chat_id=user_id)
+                successful += 1
+            except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
+                unsuccessful_ids.append(user_id) if user_id in user_ids else unsuccessful_ids_codex.append(user_id)
+
+        await cls.cleanup_users(unsuccessful_ids=unsuccessful_ids, unsuccessful_ids_codex=unsuccessful_ids_codex)
+        return {"successful": successful, "unsuccessful": len(unsuccessful_ids + unsuccessful_ids_codex)}
 
 
 @Client.on_message(
@@ -89,12 +98,11 @@ async def broadcast(client: Client, message: Message) -> Message:
     user_ids = (await database.aggregate(collection="Users", pipeline=pipeline_ids))[0]["user_ids"]
     user_ids_codex = await database.aggregate(collection="users", pipeline=pipeline_ids)
 
-    if user_ids_codex:
-        user_ids_codex = user_ids_codex[0]["user_ids"]
+    user_ids_codex = user_ids_codex[0]["user_ids"] if user_ids_codex else []
 
     notice_message = await message.reply(text="Currently broadcasting... This may take a while.", quote=True)
 
-    result = await broadcast_sender(
+    result = await BroadcastHandler.broadcast_sender(
         client=client,
         message=message,
         user_ids=user_ids,
