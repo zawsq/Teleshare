@@ -9,14 +9,14 @@ from lru import LRU
 from pyrogram.client import Client
 from pyrogram.types import Message
 
+from bot.config import config
+
 
 class RateLimiter:
     """
-    A experimental pyrogram rate limiter which use to limit sending messages to chats.
+    A experimental pyrogram rate limiter which use to limit the amount of update or command that bot handles.
 
     Attributes:
-        MAX_EXECUTIONS_PER_SECOND_BULK (ClassVar[int]):
-            The maximum number of executions per second for bulk notifications.
         MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT (ClassVar[int]):
             The maximum number of executions per minute for the same chat ID.
         chat_execution_counts (ClassVar[LRU]):
@@ -29,12 +29,37 @@ class RateLimiter:
 
     logger = logging.getLogger(__name__)
 
-    MAX_EXECUTIONS_PER_SECOND_BULK: ClassVar[int] = 40
-    MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT: ClassVar[int] = 30
+    MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT: ClassVar[int] = 25
 
-    chat_execution_counts: ClassVar[LRU] = LRU(MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT)
+    chat_execution_counts: ClassVar[LRU] = LRU(100)
+
     last_second_reset: ClassVar[float] = time.perf_counter()
     last_minute_reset: ClassVar[float] = time.perf_counter()
+
+    cooldown_limiter_lock: ClassVar[bool] = False
+
+    @classmethod
+    def cooldown_limiter(cls) -> None:
+        """
+        Used to update every minute with new time and chat_execution_counts per id.
+        Moves queue to execs for rate limiter.
+        Deletes the key if there's nothing to execute or queue.
+        Should only be runned once during startup."""
+        exec_per_min = cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT
+        cls.logger.info("cooldown_limiter Started...")
+
+        while True and not cls.cooldown_limiter_lock:
+            current_time = time.perf_counter()
+            if current_time - cls.last_minute_reset >= 60:  # noqa: PLR2004
+                cls.last_minute_reset = current_time
+                for key, value in cls.chat_execution_counts.items():
+                    queue = value.get("queue", 0)
+                    execs, new_queue = (queue, 0) if queue <= exec_per_min else (exec_per_min, queue - exec_per_min)
+
+                    if execs == 0 and new_queue == 0:
+                        cls.chat_execution_counts.pop(key)
+                    else:
+                        cls.chat_execution_counts.update({key: {"exec": execs, "queue": new_queue}})
 
     @classmethod
     def hybrid_limiter(cls, func_count: int = 1) -> Callable[[Callable], Callable]:
@@ -52,7 +77,7 @@ class RateLimiter:
 
         def decorator(func: Callable) -> Callable:
             @wraps(func)
-            async def wrapper(client: Client, message: Message, *args: list, **kwargs: list) -> bool:
+            async def wrapper(client: Client, message: Message, *args: tuple, **kwargs: dict) -> bool:
                 """
                 The decorated function.
 
@@ -64,36 +89,31 @@ class RateLimiter:
                     bool: The result of the function execution.
                 """
 
+                if not config.RATE_LIMITER:
+                    return await func(client, message, *args, **kwargs)
+
                 chat_id = message.chat.id
-                while True:
-                    now = time.perf_counter()
-                    elapsed_time_second = now - cls.last_second_reset
-                    elapsed_time_minute = now - cls.last_minute_reset
 
-                    if elapsed_time_second >= 1:
-                        cls.last_second_reset = now
+                cls.chat_execution_counts.setdefault(chat_id, {"exec": 0, "queue": 0})
 
-                    if elapsed_time_minute >= 60:  # noqa: PLR2004
-                        cls.chat_execution_counts.clear()
-                        cls.last_minute_reset = now
-                    else:
-                        elapsed_time_minute %= 60
+                user_dict = cls.chat_execution_counts[chat_id]
+                now = time.perf_counter()
+                elapsed_time_minute = now - cls.last_minute_reset
 
-                    if chat_id not in cls.chat_execution_counts:
-                        cls.chat_execution_counts[chat_id] = 0
+                if user_dict["exec"] >= cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT:
+                    cls.chat_execution_counts[chat_id]["queue"] += func_count
 
-                    if cls.chat_execution_counts[chat_id] < cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT:
-                        cls.chat_execution_counts[chat_id] += func_count
+                    sleep_time = 60
+                    sleep_queue = user_dict["queue"] // cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT
 
-                        if sum(cls.chat_execution_counts.values()) <= cls.MAX_EXECUTIONS_PER_SECOND_BULK:
-                            return await func(client, message, *args, **kwargs)
+                    total_sleep = (sleep_time * sleep_queue) - elapsed_time_minute
 
-                    wait_time_second = 1 - elapsed_time_second
-                    wait_time_minute = 60 - elapsed_time_minute
-                    sleep_time = max(wait_time_second, wait_time_minute)
-                    cls.logger.info("Waiting for %d seconds... before next execution", sleep_time)
+                    cls.logger.info("Waiting for %d seconds... before next execution, id: %d", total_sleep, chat_id)
+                    await asyncio.sleep(total_sleep)
 
-                    await asyncio.sleep(max(wait_time_second, wait_time_minute))
+                cls.chat_execution_counts[chat_id]["exec"] += func_count
+
+                return await func(client, message, *args, **kwargs)
 
             return wrapper
 
