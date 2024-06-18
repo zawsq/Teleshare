@@ -44,6 +44,7 @@ class Config(BaseSettings):
     MONGO_DB_NAME: str = "Zaws-File-Share"
 
     # Bot main config
+    RATE_LIMITER: bool = True
     BACKUP_CHANNEL: int
     ROOT_ADMINS_ID: list[int]
     PRIVATE_REQUEST: bool = False

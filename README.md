@@ -122,18 +122,8 @@ cd Teleshare
 
 2. Create an .env file refer to [.env_example](.env_example) for referencee.
 
-3. Use "deploy.sh" if you don't wanna
-bother setting up python path. be sure to give deploy.sh a permission to run.
-```
-bash deploy.sh
-```
 
-4. Manually deployment
-set python path
-```
-export PYTHONPATH="${PYTHONPATH}:$PWD"
-```
-or create an python environment (poetry / virtualenv)
+4. Create an python environment (poetry / virtualenv): `Optional`
 ```
 pip install virtualenv
 virtualenv myenv
@@ -142,18 +132,16 @@ source myenv/bin/activate
 windows:
 myenv\Scripts\activate
 ```
-install requirements
+5. Install requirements
 ```
 pip install requirements.txt
 ```
-change directory to bot
+
+6. Start the bot.
 ```
-cd bot
+python -m bot.main
 ```
-start the bot
-```
-python main.py
-```
+
 
 </details>
 <details>
