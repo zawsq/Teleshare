@@ -109,7 +109,7 @@ class SendMedia:
             chat_id=chat_id,
             from_chat_id=file_origin,
             message_ids=messaage_ids,
-            protect_content=True,
+            protect_content=protect_content,
             hide_sender_name=True,
         )
 
