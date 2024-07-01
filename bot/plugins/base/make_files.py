@@ -1,4 +1,5 @@
-from typing import ClassVar
+import asyncio
+from typing import ClassVar, TypedDict
 
 from pyrogram import filters
 from pyrogram.client import Client
@@ -12,24 +13,30 @@ from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 from bot.utilities.pyrotools import HelpCmd
 
 
+class CacheEntry(TypedDict):
+    counter: int
+    files: list[dict]
+
+
 class MakeFilesCommand:
     database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
-    files_cache: ClassVar[dict[int, list]] = {}
+    files_cache: ClassVar[dict[int, CacheEntry]] = {}
 
     @classmethod
     async def handle_convo_start(cls, client: Client, message: ConvoMessage) -> Message:  # noqa: ARG003
         unique_id = message.chat.id + message.from_user.id
-        cls.files_cache.setdefault(unique_id, [])
+        cls.files_cache.setdefault(unique_id, {"files": [], "counter": 0})
         return await message.reply("Send your files.")
 
     @classmethod
-    async def handle_conversation(cls, client: Client, message: ConvoMessage) -> Message:  # noqa: ARG003
+    async def handle_conversation(cls, client: Client, message: ConvoMessage) -> Message | None:  # noqa: ARG003
         unique_id = message.chat.id + message.from_user.id
         file_type = message.document or message.video or message.photo or message.audio
         if not file_type:
             return await message.reply(text="> Only send files!", quote=True)
 
-        cls.files_cache[unique_id].append(
+        cls.files_cache[unique_id]["counter"] += 1
+        cls.files_cache[unique_id]["files"].append(
             {
                 "caption": message.caption.markdown if message.caption else None,
                 "file_id": file_type.file_id,
@@ -38,14 +45,19 @@ class MakeFilesCommand:
             },
         )
 
-        file_names = "\n".join(i["file_name"] for i in cls.files_cache[unique_id])
+        current_files_count = cls.files_cache[unique_id]["counter"]
+        await asyncio.sleep(0.1)
+        if cls.files_cache[unique_id]["counter"] != current_files_count:
+            return None
+
+        file_names = "\n".join(i["file_name"] for i in cls.files_cache[unique_id]["files"])
         extra_message = "- Send more documents for batch files.\n- Send /make_link to create a sharable link."
         return await message.reply(text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}", quote=True)
 
     @classmethod
     async def handle_convo_stop(cls, client: Client, message: ConvoMessage) -> Message:
         unique_id = message.chat.id + message.from_user.id
-        user_cache = [i["message_id"] for i in cls.files_cache[unique_id]]
+        user_cache = [i["message_id"] for i in cls.files_cache[unique_id]["files"]]
 
         if not user_cache:
             cls.files_cache.pop(unique_id)
@@ -70,7 +82,9 @@ class MakeFilesCommand:
                     },
                 )
         else:
-            files_to_store = [{k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]]
+            files_to_store = [
+                {k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]["files"]
+            ]
 
         file_link = DataEncoder.encode_data(str(message.date))
         file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
