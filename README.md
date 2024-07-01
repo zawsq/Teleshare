@@ -134,7 +134,7 @@ myenv\Scripts\activate
 ```
 5. Install requirements
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 6. Start the bot.

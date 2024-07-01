@@ -29,11 +29,7 @@ class ConversationFilter:
         async def func(flt: filters.Filter, client: Client, message: Message) -> bool:  # noqa: ARG001
             """Checks if user is currently in conversation."""
             unique_id = message.chat.id + message.from_user.id
-
-            if unique_id in cls._convo_cache:
-                return False
-
-            return True
+            return unique_id not in cls._convo_cache
 
         return filters.create(func, "ConversationFilter")
 
