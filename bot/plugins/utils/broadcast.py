@@ -120,7 +120,9 @@ async def broadcast(client: Client, message: Message) -> Message:
     this command may take awhile depending on user count.
 
     **Usage:**
-        create a message then reply with /broadcast to avoid typos.
+        Create a message then reply with /broadcast to avoid typos.
+        To pin the broadcast message add additional arg to the command:
+        `/broadcast pin`
     """
     if not message.reply_to_message:
         return await message.reply(text="Reply to a message with command /broadcast to avoid broadcasting typos.")
