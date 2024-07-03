@@ -104,14 +104,14 @@ class RateLimiter:
                     cls.chat_execution_counts[chat_id]["queue"] += func_count
 
                     sleep_time = 60
-                    sleep_queue = user_dict["queue"] // cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT
+                    sleep_queue = (user_dict["queue"] // cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT) + 1
 
                     total_sleep = (sleep_time * sleep_queue) - elapsed_time_minute
 
                     cls.logger.info("Waiting for %d seconds... before next execution, id: %d", total_sleep, chat_id)
                     await asyncio.sleep(total_sleep)
 
-                cls.chat_execution_counts[chat_id]["exec"] += func_count
+                cls.chat_execution_counts.setdefault(chat_id, {"exec": 0, "queue": 0})["exec"] += func_count
 
                 return await func(client, message, *args, **kwargs)
 
