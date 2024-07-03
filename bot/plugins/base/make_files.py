@@ -1,5 +1,5 @@
 import asyncio
-from typing import ClassVar, TypedDict
+from typing import Any, ClassVar, TypedDict
 
 from pyrogram import filters
 from pyrogram.client import Client
@@ -14,26 +14,68 @@ from bot.utilities.pyrotools import HelpCmd
 
 
 class CacheEntry(TypedDict):
+    """Cache entry for files."""
+
     counter: int
     files: list[dict]
 
 
 class MakeFilesCommand:
+    """Make files command class."""
+
     database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
     files_cache: ClassVar[dict[int, CacheEntry]] = {}
 
-    @classmethod
-    async def handle_convo_start(cls, client: Client, message: ConvoMessage) -> Message:  # noqa: ARG003
-        unique_id = message.chat.id + message.from_user.id
-        cls.files_cache.setdefault(unique_id, {"files": [], "counter": 0})
-        return await message.reply("Send your files.")
+    @staticmethod
+    @RateLimiter.hybrid_limiter(func_count=1)
+    async def message_reply(client: Client, message: Message, **kwargs: Any) -> Message:  # noqa: ANN401, ARG004
+        """
+        Replies to a message with rate limiter.
+
+        Parameters:
+            client (Client): The client instance.
+            message (Message): The message to reply to.
+            **kwargs (Any): Additional keyword arguments for the reply.
+
+        Returns:
+            Message: The replied message.
+        """
+        return await message.reply(**kwargs)
 
     @classmethod
-    async def handle_conversation(cls, client: Client, message: ConvoMessage) -> Message | None:  # noqa: ARG003
+    async def handle_convo_start(cls, client: Client, message: ConvoMessage) -> Message:
+        """
+        Handle conversation start.
+
+        Parameters:
+            client (Client): The client instance.
+            message (ConvoMessage): The conversation message.
+
+        Returns:
+            Message: The replied message.
+        """
+        unique_id = message.chat.id + message.from_user.id
+        cls.files_cache.setdefault(unique_id, {"files": [], "counter": 0})
+        return await cls.message_reply(client=client, message=message, text="Send your files.", quote=True)
+
+    @classmethod
+    async def handle_conversation(cls, client: Client, message: ConvoMessage) -> Message | None:
+        """
+        Handle conversations and file uploads. Maintain file cache for optimization.
+        Process burst files, responding only when complete.
+
+
+        Parameters:
+            client (Client): The client instance.
+            message (ConvoMessage): The conversation message.
+
+        Returns:
+            Message or None: The replied message or None if burst is triggered.
+        """
         unique_id = message.chat.id + message.from_user.id
         file_type = message.document or message.video or message.photo or message.audio
         if not file_type:
-            return await message.reply(text="> Only send files!", quote=True)
+            return await cls.message_reply(client=client, message=Message, text="> Only send files!", quote=True)
 
         cls.files_cache[unique_id]["counter"] += 1
         cls.files_cache[unique_id]["files"].append(
@@ -52,16 +94,42 @@ class MakeFilesCommand:
 
         file_names = "\n".join(i["file_name"] for i in cls.files_cache[unique_id]["files"])
         extra_message = "- Send more documents for batch files.\n- Send /make_link to create a sharable link."
-        return await message.reply(text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}", quote=True)
+        return await cls.message_reply(
+            client=client,
+            message=message,
+            text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}",
+            quote=True,
+        )
 
     @classmethod
     async def handle_convo_stop(cls, client: Client, message: ConvoMessage) -> Message:
+        """
+        Handle the end of conversation.
+
+        This finalizes the conversation by:
+        - Checking if any files were uploaded.
+        - Optionally forwarding files to a backup channel.
+        - Storing file information in a database.
+        - Generating and sending a link to access the files.
+
+        Parameters:
+            client (Client): The client instance.
+            message (ConvoMessage): The conversation message.
+
+        Returns:
+            Message: The replied message.
+        """
         unique_id = message.chat.id + message.from_user.id
         user_cache = [i["message_id"] for i in cls.files_cache[unique_id]["files"]]
 
         if not user_cache:
             cls.files_cache.pop(unique_id)
-            return await message.reply(text="No file inputs, stopping task.", quote=True)
+            return await cls.message_reply(
+                client=client,
+                message=message,
+                text="No file inputs, stopping task.",
+                quote=True,
+            )
 
         files_to_store = []
         if options.settings.BACKUP_FILES:
@@ -101,7 +169,9 @@ class MakeFilesCommand:
             [[InlineKeyboardButton("Share URL", url=f"https://t.me/share/url?url={link}")]],
         )
 
-        return await message.reply(
+        return await cls.message_reply(
+            client=client,
+            message=message,
             text=f"Here is your link:\n>{link}",
             quote=True,
             reply_markup=reply_markup,
@@ -117,7 +187,6 @@ class MakeFilesCommand:
         convo_stop="/make_link",
     ),
 )
-@RateLimiter.hybrid_limiter(func_count=1)
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
     """Handles a conversation that receives files to generate an accessable file link.
 
