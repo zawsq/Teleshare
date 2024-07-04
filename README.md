@@ -30,7 +30,8 @@
 - [x] Fully remove database models.
 - [x] Try again button.
 - [x] Auto link generator.
-- [x] add codeXbots file-sharing link compatibility.
+- [x] Add codeXbots file-sharing link compatibility.
+- [x] Ability to delete a link.
 - [ ] Tokenized access.
 
 #### CURRENT AVAILABLE COMMANDS:
@@ -41,6 +42,7 @@ Use: `/help [command name]` for more informations.
 3. `/broadcast`: Broadcasts a message to multiple subscribed users
 this command may take awhile depending on user count.
 4. `/option`: Use to configure database options. See [START-UP REQUIREMENTS](#start-up-requirements) bot options for more informations.
+5. `/delete_link`: Delete an accessible link from the database and delete the corresponding file from the backup channel.
 
 #### Frequently Asked Questions
 <details>
@@ -104,7 +106,7 @@ Usage:
 Example:
 
     /option AUTO_DELETE_SECONDS 600
-    /option FORCE_SUB_MESSAGE: reply to a message.
+    /option FORCE_SUB_MESSAGE [reply to a message.]
 </details>
 
 #### DEPLOYMENTS
