@@ -8,7 +8,7 @@ from bot.config import config
 from bot.database import MongoDB
 from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
-from bot.utilities.pyrotools import FileResolverModel
+from bot.utilities.pyrotools import FileResolverModel, HelpCmd
 
 database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
 
@@ -31,7 +31,8 @@ async def delete_link(client: Client, message: Message) -> Message:
 
     if not file_document:
         return await message.reply(
-            text="Cannot find link: Either it has been deleted or it does not exist.", quote=True,
+            text="Cannot find link: Either it has been deleted or it does not exist.",
+            quote=True,
         )
 
     file_origin = file_document[0]["file_origin"]
@@ -44,3 +45,11 @@ async def delete_link(client: Client, message: Message) -> Message:
         await client.delete_messages(chat_id=file_origin, message_ids=message_ids)
 
     return await message.reply(text=f">**Successfully Deleted:**\n `{base64_file_link}`", quote=True)
+
+
+HelpCmd.set_help(
+    command="delete_link",
+    description=delete_link.__doc__,
+    allow_global=False,
+    allow_non_admin=False,
+)
