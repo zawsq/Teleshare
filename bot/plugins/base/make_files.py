@@ -75,7 +75,7 @@ class MakeFilesCommand:
         unique_id = message.chat.id + message.from_user.id
         file_type = message.document or message.video or message.photo or message.audio
         if not file_type:
-            return await cls.message_reply(client=client, message=Message, text="> Only send files!", quote=True)
+            return await cls.message_reply(client=client, message=message, text="> Only send files!", quote=True)
 
         cls.files_cache[unique_id]["counter"] += 1
         cls.files_cache[unique_id]["files"].append(
