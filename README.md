@@ -43,6 +43,7 @@ Use: `/help [command name]` for more informations.
 this command may take awhile depending on user count.
 4. `/option`: Use to configure database options. See [START-UP REQUIREMENTS](#start-up-requirements) bot options for more informations.
 5. `/delete_link`: Delete an accessible link from the database and delete the corresponding file from the backup channel.
+6. Auto link generation: just forward or send a file directly to the bot.
 
 #### Frequently Asked Questions
 <details>
@@ -58,7 +59,7 @@ this command may take awhile depending on user count.
 <details>
 <summary>.env / environ</summary>
 
-> You can use either .env or environ as a way to setup the configuration. Please see [.env_example](.env_example)  as reference.
+> You can set up the configuration using either a `.env` file or an `environ variable`. Please refer to the [.env_example](.env_example) file as a reference. Don't forget to add `[` and `]` or brackets if required, as shown in the example file.
 
 [Telegram website](https://my.telegram.org/auth)
 - API_ID
@@ -153,7 +154,9 @@ Please edit the following "Environment Variable" and refer to [.env_example](.en
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/zawsq/Teleshare/tree/heroku-deploy)
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/apps/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
+If this repo cannot be deployed in Heroku, please fork it and deploy it manually using the [heroku-deploy](https://github.com/zawsq/Teleshare/tree/heroku-deploy) branch.
+
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/services/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
 
 </details>
 
