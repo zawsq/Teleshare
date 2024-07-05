@@ -1,6 +1,8 @@
+from typing import Any, cast
+
 from pyrogram import raw
 from pyrogram.client import Client
-from pyrogram.types import InlineKeyboardMarkup, Message
+from pyrogram.types import Message
 
 from bot.config import config
 
@@ -64,26 +66,19 @@ class PyroHelper:
         return channels_n_invite
 
     @staticmethod
-    async def option_message(  # noqa: PLR0913
+    async def option_message(
         client: Client,
         message: Message,
         option_key: str | int,
-        disable_web_page_preview: bool = False,  # noqa: FBT001, FBT002
-        quote: bool = False,  # noqa: FBT001, FBT002
-        reply_markup: InlineKeyboardMarkup | None = None,
+        **kwargs: Any,  # noqa: ANN401
     ) -> Message:
         if isinstance(option_key, int):
-            return await client.copy_message(
-                chat_id=message.chat.id,
-                from_chat_id=config.BACKUP_CHANNEL,
-                message_id=option_key,
-                reply_to_message_id=message.id,
-                reply_markup=reply_markup,  # pyright: ignore[reportArgumentType]
-            )
+            message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=option_key)
+
+            if message_origin:
+                return cast(Message, await message_origin.copy(chat_id=message.chat.id))  # pyright: ignore[reportCallIssue]
 
         return await message.reply(
-            text=option_key,
-            reply_markup=reply_markup,
-            disable_web_page_preview=disable_web_page_preview,
-            quote=quote,
+            text=str(option_key),
+            **kwargs,
         )
