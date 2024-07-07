@@ -48,11 +48,15 @@ this command may take awhile depending on user count.
 #### Frequently Asked Questions
 <details>
 <summary>FAQS</summary>
+
 1. How do i disable automatic deletation:
 
 ```
 /option AUTO_DELETE_SECONDS 0
 ```
+
+2. Can I disable file backup? It depends on your use case. By default, the bot automatically grabs the files through the Telegram server. If you need to use the links in the future on another bot, backing up the files is mandatory.
+
 </details>
 
 #### START-UP REQUIREMENTS
