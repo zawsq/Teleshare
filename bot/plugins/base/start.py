@@ -56,6 +56,7 @@ class FileSender:
                 client=client,
                 chat_id=chat_id,
                 file_data=file_data[0],
+                file_origin=file_origin,
                 protect_content=protect_content,
             )
         else:

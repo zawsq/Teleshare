@@ -27,6 +27,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [project]
+name = "Teleshare"
 requires-python = ">=3.10"
 
 [tool.ruff]
