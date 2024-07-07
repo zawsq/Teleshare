@@ -1,10 +1,12 @@
 import contextlib
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import BaseModel
 from pyrogram.client import Client
 from pyrogram.file_id import FileId
 from pyrogram.types import Message
+
+from bot.options import options
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -39,11 +41,12 @@ class SendMedia:
     """
 
     @classmethod
-    async def send_media(
+    async def send_media(  # noqa: PLR0913
         cls,
         client: Client,
         chat_id: int,
         file_data: FileResolverModel,
+        file_origin: int,
         protect_content: bool,  # noqa: FBT001
     ) -> Message:
         """
@@ -53,6 +56,7 @@ class SendMedia:
             client (Client): The Pyrogram client.
             chat_id (int): The chat ID.
             file_data (FileResolverModel): The file data.
+            file_origin: (int | None): Where the file came from.
 
         Returns:
             Message: The sent message.
@@ -60,6 +64,12 @@ class SendMedia:
         Raises:
             UnsupportedFileError: If the file type is unsupported.
         """
+
+        if options.settings.BACKUP_FILES:
+            get_file = await client.get_messages(chat_id=file_origin, message_ids=file_data.message_id)
+            if not getattr(get_file, "empty", False):
+                return cast(Message, await get_file.copy(chat_id=chat_id))  # pyright: ignore[reportCallIssue]
+
         file_type_data = FileId.decode(file_id=file_data.file_id)
         methods: dict[str, Callable[..., Any]] = {
             "AUDIO": client.send_audio,
@@ -120,7 +130,13 @@ class SendMedia:
         for i in file_data:
             with contextlib.suppress(UnsupportedFileError):
                 send_files_message.append(
-                    await cls.send_media(client=client, chat_id=chat_id, file_data=i, protect_content=protect_content),
+                    await cls.send_media(
+                        client=client,
+                        chat_id=chat_id,
+                        file_data=i,
+                        file_origin=file_origin,
+                        protect_content=protect_content,
+                    ),
                 )
 
         return send_files_message
