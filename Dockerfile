@@ -23,8 +23,8 @@ WORKDIR /bot
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
 # Create non-root user
-RUN useradd --create-home /bot --shell /bin/sh zaws && \
-    chown -R zaws:zaws .
+RUN groupadd -r zaws && useradd -r -g zaws -s /bin/sh -d /bot zaws && \
+    chown -R zaws:zaws /bot
 
 USER zaws
 
