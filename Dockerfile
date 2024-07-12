@@ -22,10 +22,8 @@ WORKDIR /bot
 
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
-# Clean up
-RUN rm -f /usr/lib/x86_64-linux-gnu/libmfxhw* /usr/lib/x86_64-linux-gnu/mfx/* && \
-    # Create non-root user
-    useradd --create-home /bot --shell /bin/sh zaws && \
+# Create non-root user
+RUN useradd --create-home /bot --shell /bin/sh zaws && \
     chown -R zaws:zaws .
 
 USER zaws
