@@ -1,47 +1,41 @@
 <p align="center"><b>TELESHARE</b></p>
 <p align="center">A efficient and configurable telegram file sharing bot</p>
 
-#### DEMO: [BOT LINK](https://t.me/TelezhareBot?start=IjIwMjQtMDUtMzAgMjM6NTM6Mjci)
+**DEMO:** [BOT LINK](https://t.me/TelezhareBot?start=IjIwMjQtMDUtMzAgMjM6NTM6Mjci)
+
+**SUPPORT CHANNEL:** [THE HQ](https://t.me/zawshq)
+
+#### INDEX
+* [Features](#features)
+* [Todo](#todo)
+* [All Available Commands](#all-available-commands)
+* [Frequently Asked Questions](#frequently-asked-questions)
+* [Setup Requirements](#setup-requirements)
+* [Deployments](#deployments)
+
 #### FEATURES
+- [All available commands.](current-available-commands)
 - CodeXbotz links compatibility.
 - Fully asynchronous.
-- Highly configurable.
 - In-built rate limiter.
 - Multi-channel force subscription.
+- [Option Setup.](#bot-options)
 - Protect content.
-- Quick Deployment.
-- Toggleable auto file backup.
-- Toggleable auto message delete.
-- Type-hinted for improved code readability.
-- User-friendly interface.
 
 #### TODO
-- [x] Broadcast / Announcement.
-- [x] Configuration commands.
-- [x] HTTP client.
-- [x] Invite requests.
-- [x] Public mode.
-- [x] Quick deployments.
-- [x] Support common file types: `(doc,photo,vid,audio)`.
-- [x] Toggle Backup.
-- [x] Help command.
-- [x] Toggle global mode.
-- [x] In-built rate limiter.
-- [x] Fully remove database models.
-- [x] Try again button.
-- [x] Auto link generator.
-- [x] Add codeXbots file-sharing link compatibility.
-- [x] Ability to delete a link.
+- [ ] Database and Option refactor.
+- [ ] Ban command.
+- [ ] File rename command.
 - [ ] Tokenized access.
 
-#### CURRENT AVAILABLE COMMANDS:
+#### ALL AVAILABLE COMMANDS:
 Use: `/help [command name]` for more informations.
 
 1. `/make_files`: Handles a conversation that receives files to generate an accessable file link.
 2. `/start`: Handle start command, it returns files if a link is included otherwise sends the user a request.
 3. `/broadcast`: Broadcasts a message to multiple subscribed users
 this command may take awhile depending on user count.
-4. `/option`: Use to configure database options. See [START-UP REQUIREMENTS](#start-up-requirements) bot options for more informations.
+4. `/option`: Use to configure database options. See [bot options](#bot-options) for more informations.
 5. `/delete_link`: Delete an accessible link from the database and delete the corresponding file from the backup channel.
 6. Auto link generation: just forward or send a file directly to the bot.
 
@@ -59,8 +53,8 @@ this command may take awhile depending on user count.
 
 </details>
 
-#### START-UP REQUIREMENTS
-<details>
+#### SETUP REQUIREMENTS
+<details id="environment">
 <summary>.env / environ</summary>
 
 > You can set up the configuration using either a `.env` file or an `environ variable`. Please refer to the [.env_example](.env_example) file as a reference. Don't forget to add `[` and `]` or brackets if required, as shown in the example file.
@@ -89,12 +83,11 @@ Main config
 - `AUTO_GENERATE_LINK`: toggle auto link generator when file is recieve directly. default to `True`.
 </details>
 
-<details>
+<details id="bot-options">
 <summary>Bot options</summary>
 
-Set:
 - `FORCE_SUB_MESSAGE (str|int)`: message during force subscription.
-- `START_MESSAGE (str|int)`: a start message 
+- `STARR_MESSAGE (str|int)`: a start message.
 - `AUTO_DELETE_MESSAGE (str|int)`: an auto delete messages, {} is the amount of minutes.
 
 - `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
@@ -115,6 +108,9 @@ Example:
 </details>
 
 #### DEPLOYMENTS
+
+Please edit the following "Environment Variable" for `quick deployment` or create an ".env" for `local deployment` and refer to [.env_example](.env_example) for reference or [configuration](#environment) for descriptions.
+
 <details>
 <summary>Local Deployment</summary>
 
@@ -136,6 +132,7 @@ pip install virtualenv
 virtualenv myenv
 
 source myenv/bin/activate
+
 windows:
 myenv\Scripts\activate
 ```
@@ -151,21 +148,29 @@ python -m bot.main
 
 
 </details>
+
 <details>
-<summary>Quick Deployment</summary>
-  
-Please edit the following "Environment Variable" and refer to [.env_example](.env_example) for reference.
+<summary>Heroku Deployment</summary>
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/zawsq/Teleshare/tree/heroku-deploy)
 
 If this repo cannot be deployed in Heroku, please fork it and deploy it manually using the [heroku-deploy](https://github.com/zawsq/Teleshare/tree/heroku-deploy) branch.
+</details>
+
+<details>
+<summary>Koyeb Deployment</summary>
 
 [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/services/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
 
+Just setup the environment variables and your done.
 </details>
 
+<details>
+<summary>Render Deployment</summary>
 
-<br>
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
-____
-**SUPPORT CHANNEL: [THE HQ](https://t.me/zawshq)**
+To deploy on render, fork the main repo and deploy using `Dockerfile`
+
+Setup your Render environment variable refer to [.env_example](.env_example) for reference or [configuration](#environment) for descriptions.
+</details>
