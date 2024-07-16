@@ -52,9 +52,10 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
     if message.reply_to_message:
         values = message.reply_to_message.text.markdown if message.reply_to_message.text is not None else None
         if not values or not values.isdigit():
-            copyied_mssg = await message.reply_to_message.copy(config.BACKUP_CHANNEL)
+            copyied_mssg = await message.reply_to_message.copy(chat_id=config.BACKUP_CHANNEL)
             values = str(copyied_mssg.id if isinstance(copyied_mssg, Message) else values)
     else:
+        # messages next to option command.
         values = (message.text.markdown.split(maxsplit=2)[2:])[0].lstrip()
 
     try:

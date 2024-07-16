@@ -76,7 +76,7 @@ class PyroHelper:
             message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=option_key)
 
             if message_origin:
-                return cast(Message, await message_origin.copy(chat_id=message.chat.id))  # pyright: ignore[reportCallIssue]
+                return cast(Message, await message_origin.copy(chat_id=message.chat.id, **kwargs))  # pyright: ignore[reportCallIssue]
 
         return await message.reply(
             text=str(option_key),
