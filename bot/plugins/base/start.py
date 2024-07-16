@@ -184,8 +184,6 @@ async def return_start(
         message=message,
         option_key=options.settings.FORCE_SUB_MESSAGE,
         reply_markup=InlineKeyboardMarkup(buttons),
-        disable_web_page_preview=True,
-        quote=True,
     )
 
 
