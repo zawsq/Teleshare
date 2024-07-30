@@ -7,13 +7,12 @@ from pyrogram.client import Client
 from pyrogram.errors import FloodWait, InputUserDeactivated, PeerIdInvalid, UserIsBlocked
 from pyrogram.types import Message
 
-from bot.config import config
 from bot.database import MongoDB
 from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.pyrotools import HelpCmd
 
-database = MongoDB(database=config.MONGO_DB_NAME)
+database = MongoDB()
 
 
 class BroadcastConfig(BaseModel):
@@ -62,20 +61,6 @@ class BroadcastHandler:
             await asyncio.sleep(float(cast(float, e.value)))
             return await copy_and_pin()
 
-    @staticmethod
-    async def cleanup_users(unsuccessful_ids: list, unsuccessful_ids_codex: list) -> None:
-        """Cleans up users from database based on their IDs.
-
-        Parameters:
-            unsuccessful_ids (list): List of user unsuccessful id from teleshare to be delete from the database.
-            unsuccessful_ids_codex (list): List of user unsuccessful id from CodeXbotz to be delete from the database.
-        """
-        if unsuccessful_ids:
-            await database.delete_many(collection="Users", db_filter={"_id": {"$in": unsuccessful_ids}})
-
-        if unsuccessful_ids_codex:
-            await database.delete_many(collection="users", db_filter={"_id": {"$in": unsuccessful_ids_codex}})
-
     @classmethod
     async def broadcast_sender(cls, client: Client, message: Message, broadcast_config: BroadcastConfig) -> dict:
         """
@@ -107,7 +92,7 @@ class BroadcastHandler:
                     user_id,
                 ) if user_id in broadcast_config.user_ids else unsuccessful_ids_codex.append(user_id)
 
-        await cls.cleanup_users(unsuccessful_ids=unsuccessful_ids, unsuccessful_ids_codex=unsuccessful_ids_codex)
+        await database.cleanup_users(unsuccessful_ids=unsuccessful_ids, unsuccessful_ids_codex=unsuccessful_ids_codex)
         return {"successful": successful, "unsuccessful": len(unsuccessful_ids + unsuccessful_ids_codex)}
 
 
@@ -129,16 +114,7 @@ async def broadcast(client: Client, message: Message) -> Message:
 
     pin_arg = bool((message.command[1]).lower() == "pin") if message.command[1:] else False
 
-    pipeline_ids = [
-        {"$project": {"_id": 1}},
-        {"$group": {"_id": None, "user_ids": {"$addToSet": "$_id"}}},
-        {"$project": {"_id": 0, "user_ids": 1}},
-    ]
-
-    user_ids = (await database.aggregate(collection="Users", pipeline=pipeline_ids))[0]["user_ids"]
-    user_ids_codex = await database.aggregate(collection="users", pipeline=pipeline_ids)
-
-    user_ids_codex = user_ids_codex[0]["user_ids"] if user_ids_codex else []
+    user_ids, user_ids_codex = await database.get_user_ids()
 
     notice_message = await message.reply(text="Currently broadcasting... This may take a while.", quote=True)
 

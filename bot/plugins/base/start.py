@@ -10,7 +10,7 @@ from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.pyrotools import FileResolverModel, HelpCmd, Pyrotools
 from bot.utilities.schedule_manager import schedule_manager
 
-database = MongoDB(database=config.MONGO_DB_NAME)
+database = MongoDB()
 
 
 class FileSender:
@@ -90,15 +90,10 @@ async def file_start(
         return message.stop_propagation()
 
     # shouldn't overwrite existing id it already exists
-    await database.update_one(
-        collection="Users",
-        db_filter={"_id": message.from_user.id},
-        update={"$set": {"_id": message.from_user.id}},
-        upsert=True,
-    )
+    await database.add_user(user_id=message.from_user.id)
 
     base64_file_link = message.text.split(maxsplit=1)[1]
-    file_document = await database.aggregate(collection="Files", pipeline=[{"$match": {"_id": base64_file_link}}])
+    file_document = await database.get_link_document(base64_file_link=base64_file_link)
 
     if not file_document:
         try:
@@ -121,7 +116,6 @@ async def file_start(
             await message.reply(text="Attempted to fetch files: Does not exist.")
             return message.stop_propagation()
     else:
-        file_document = file_document[0]
         file_origin = file_document["file_origin"]
         file_data = [FileResolverModel(**file) for file in file_document["files"]]
 

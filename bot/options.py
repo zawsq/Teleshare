@@ -1,8 +1,5 @@
-import dns.resolver
 from pydantic import BaseModel
-from pymongo.errors import ConfigurationError
 
-from bot.config import config
 from bot.database import MongoDB
 
 
@@ -22,7 +19,7 @@ class InvalidValueError(Exception):
         super().__init__(f"Value for key '{key}' must have the same type as the existing value.")
 
 
-class Options:
+class Options(MongoDB):
     def __init__(self) -> None:
         """
         Initialize the Settings class.
@@ -32,20 +29,15 @@ class Options:
                 Initialized as SettingsModel.
             self.collection:
                 The name of the collection.
-            self.database:
+            self.db:
                 The MongoDB instance.
             self.document_id:
                 The ID of the document to retrieve/update settings.
         """
+        super().__init__()
         self.settings = SettingsModel()
         self.collection = "BotSettings"
         self.document_id = "MainOptions"
-        try:
-            self.database = MongoDB(database=config.MONGO_DB_NAME)
-        except ConfigurationError:
-            dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
-            dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
-            self.database = MongoDB(database=config.MONGO_DB_NAME)
 
     async def load_settings(self) -> None:
         """
@@ -55,7 +47,9 @@ class Options:
             await self.load_settings()
         """
         pipeline = [{"$match": {"_id": self.document_id}}]
-        settings_doc = await self.database.aggregate(collection=self.collection, pipeline=pipeline)
+
+        cursor = self.db[self.collection].aggregate(pipeline)
+        settings_doc = await cursor.to_list(length=None)
 
         if settings_doc:
             self.settings = SettingsModel(**settings_doc[0])
@@ -65,10 +59,10 @@ class Options:
         update = {"$set": self.settings.model_dump()}
         db_filter = {"_id": self.document_id}
 
-        await self.database.update_one(
-            collection=self.collection,
-            db_filter=db_filter,
+        await self.db[self.collection].update_one(
+            filter=db_filter,
             update=update,
+            upsert=True,
         )
 
     async def update_settings(
@@ -112,10 +106,10 @@ class Options:
         db_filter = {"_id": self.document_id}
         update = {"$set": {model_key: model_value}}
 
-        await self.database.update_one(
-            collection=self.collection,
-            db_filter=db_filter,
+        await self.db[self.collection].update_one(
+            filter=db_filter,
             update=update,
+            upsert=True,
         )
 
         return self.settings
