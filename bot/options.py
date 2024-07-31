@@ -1,16 +1,25 @@
-import dns.resolver
 from pydantic import BaseModel
-from pymongo.errors import ConfigurationError
 
-from bot.config import config
 from bot.database import MongoDB
 
 
 class SettingsModel(BaseModel):
+    """
+    A model representing the bot's settings.
+
+    Parameters:
+        FORCE_SUB_MESSAGE (str | int): The message to display when a user is not subscribed.
+        START_MESSAGE (str | int): The message to display when a user starts the bot.
+        USER_REPLY_TEXT (str | int): The text to reply to a user.
+        AUTO_DELETE_MESSAGE (str | int): The message to display when a file is deleted.
+        AUTO_DELETE_SECONDS (int): The number of seconds to wait before deleting a file.
+        GLOBAL_MODE (bool): Whether the bot is in global mode.
+        BACKUP_FILES (bool): Whether to backup files.
+    """
+
     FORCE_SUB_MESSAGE: str | int = "Please join the channel(s) first."
     START_MESSAGE: str | int = "I am a file-sharing bot."
     USER_REPLY_TEXT: str | int = "idk"
-
     AUTO_DELETE_MESSAGE: str | int = "This file(s) will be deleted within {} minutes"
     AUTO_DELETE_SECONDS: int = 300
     GLOBAL_MODE: bool = False
@@ -18,34 +27,32 @@ class SettingsModel(BaseModel):
 
 
 class InvalidValueError(Exception):
+    """
+    An exception raised when a value is invalid.
+
+    Parameters:
+        key (str | int): The key that has an invalid value.
+    """
+
     def __init__(self, key: str | int) -> None:
         super().__init__(f"Value for key '{key}' must have the same type as the existing value.")
 
 
-class Options:
-    def __init__(self) -> None:
-        """
-        Initialize the Settings class.
+class Options(MongoDB):
+    """
+    A class representing the bot's options.
 
-        Parameters:
-            self.settings:
-                Initialized as SettingsModel.
-            self.collection:
-                The name of the collection.
-            self.database:
-                The MongoDB instance.
-            self.document_id:
-                The ID of the document to retrieve/update settings.
-        """
+    Parameters:
+        self.settings (SettingsModel): The bot's settings.
+        self.collection (str): The name of the collection.
+        self.document_id (str): The ID of the document to retrieve/update settings.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
         self.settings = SettingsModel()
         self.collection = "BotSettings"
         self.document_id = "MainOptions"
-        try:
-            self.database = MongoDB(database=config.MONGO_DB_NAME)
-        except ConfigurationError:
-            dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
-            dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
-            self.database = MongoDB(database=config.MONGO_DB_NAME)
 
     async def load_settings(self) -> None:
         """
@@ -55,7 +62,8 @@ class Options:
             await self.load_settings()
         """
         pipeline = [{"$match": {"_id": self.document_id}}]
-        settings_doc = await self.database.aggregate(collection=self.collection, pipeline=pipeline)
+        cursor = self.db[self.collection].aggregate(pipeline)
+        settings_doc = await cursor.to_list(length=None)
 
         if settings_doc:
             self.settings = SettingsModel(**settings_doc[0])
@@ -64,35 +72,28 @@ class Options:
 
         update = {"$set": self.settings.model_dump()}
         db_filter = {"_id": self.document_id}
-
-        await self.database.update_one(
-            collection=self.collection,
-            db_filter=db_filter,
+        await self.db[self.collection].update_one(
+            filter=db_filter,
             update=update,
+            upsert=True,
         )
 
-    async def update_settings(
-        self,
-        key: str,
-        value: str | int,
-    ) -> SettingsModel:
+    async def update_settings(self, key: str, value: str | int) -> SettingsModel:
         """
         Update the settings and save them to the MongoDB collection.
 
         Parameters:
-            key:
-                The key/field name in the SettingsModel to update.
-            value:
-                The new value to set for the specified key.
+            key (str): The key/field name in the SettingsModel to update.
+            value (str | int): The new value to set for the specified key.
 
         Returns:
-            The updated SettingsModel instance from 'self.settings'.
+            The updated SettingsModel instance from 'elf.settings'.
 
         Raises:
-            ValueError:
+            KeyError:
                 If the provided key is not a valid field in the SettingsModel.
-            ValidationError:
-                Failed to validate changes.
+            InvalidValueError:
+                If the provided value is not of the same type as the existing value.
 
         Example:
             await self.update_settings(key="START_MESSAGE", value="Hello, I am a bot.")
@@ -108,16 +109,13 @@ class Options:
         self.settings = SettingsModel(**self.settings.model_dump())
 
         model_key, model_value = key, getattr(self.settings, key)
-
         db_filter = {"_id": self.document_id}
         update = {"$set": {model_key: model_value}}
-
-        await self.database.update_one(
-            collection=self.collection,
-            db_filter=db_filter,
+        await self.db[self.collection].update_one(
+            filter=db_filter,
             update=update,
+            upsert=True,
         )
-
         return self.settings
 
 

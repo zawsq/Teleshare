@@ -11,7 +11,7 @@ class HelpCmd:
     _helper: ClassVar[dict[str, dict[str, str | bool | list[str] | None]]] = {}
 
     @classmethod
-    def set_help(  # noqa: PLR0913
+    def set_help(
         cls,
         command: str,
         description: str | None,

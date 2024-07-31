@@ -23,7 +23,7 @@ class CacheEntry(TypedDict):
 class MakeFilesCommand:
     """Make files command class."""
 
-    database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
+    database = MongoDB()
     files_cache: ClassVar[dict[int, CacheEntry]] = {}
 
     @staticmethod
@@ -156,27 +156,26 @@ class MakeFilesCommand:
 
         file_link = DataEncoder.encode_data(str(message.date))
         file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
-        await cls.database.update_one(
-            collection="Files",
-            db_filter={"_id": file_link},
-            update={"$set": {"file_origin": file_origin, "files": files_to_store}},
-        )
+
+        add_file = await cls.database.add_file(file_link=file_link, file_origin=file_origin, file_data=files_to_store)
 
         cls.files_cache.pop(unique_id)
 
-        link = f"https://t.me/{client.me.username}?start={file_link}"  # type: ignore[reportOptionalMemberAccess]
-        reply_markup = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("Share URL", url=f"https://t.me/share/url?url={link}")]],
-        )
+        if add_file:
+            link = f"https://t.me/{client.me.username}?start={file_link}"  # type: ignore[reportOptionalMemberAccess]
+            reply_markup = InlineKeyboardMarkup(
+                [[InlineKeyboardButton("Share URL", url=f"https://t.me/share/url?url={link}")]],
+            )
 
-        return await cls.message_reply(
-            client=client,
-            message=message,
-            text=f"Here is your link:\n>{link}",
-            quote=True,
-            reply_markup=reply_markup,
-            disable_web_page_preview=True,
-        )
+            return await cls.message_reply(
+                client=client,
+                message=message,
+                text=f"Here is your link:\n>{link}",
+                quote=True,
+                reply_markup=reply_markup,
+                disable_web_page_preview=True,
+            )
+        return await message.reply("Couldn't add files to database")
 
 
 @Client.on_message(

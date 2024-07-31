@@ -9,7 +9,7 @@ from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 from bot.utilities.pyrotools import FileResolverModel
 
-database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
+database = MongoDB()
 
 
 @Client.on_message(
@@ -41,20 +41,19 @@ async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None
         message_id=message_id,
     )
 
-    await database.update_one(
-        collection="Files",
-        db_filter={"_id": file_link},
-        update={"$set": {"file_origin": file_origin, "files": [file_data.model_dump()]}},
-    )
+    add_file = await database.add_file(file_link=file_link, file_origin=file_origin, file_data=[file_data.model_dump()])
 
-    link = f"https://t.me/{client.me.username}?start={file_link}"  # type: ignore[reportOptionalMemberAccess]
-    reply_markup = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("Share URL", url=f"https://t.me/share/url?url={link}")]],
-    )
+    if add_file:
+        link = f"https://t.me/{client.me.username}?start={file_link}"  # type: ignore[reportOptionalMemberAccess]
+        reply_markup = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Share URL", url=f"https://t.me/share/url?url={link}")]],
+        )
 
-    return await message.reply(
-        text=f"Here is your link:\n>{link}",
-        quote=True,
-        reply_markup=reply_markup,
-        disable_web_page_preview=True,
-    )
+        return await message.reply(
+            text=f"Here is your link:\n>{link}",
+            quote=True,
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+        )
+
+    return await message.reply("Couldn't add files to database")

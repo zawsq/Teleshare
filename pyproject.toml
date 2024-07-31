@@ -38,6 +38,9 @@ namespace-packages = [
     "bot/plugins/"
     ]
 
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
