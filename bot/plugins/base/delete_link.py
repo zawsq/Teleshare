@@ -10,7 +10,7 @@ from bot.utilities.helpers import RateLimiter
 from bot.utilities.pyrofilters import PyroFilters
 from bot.utilities.pyrotools import FileResolverModel, HelpCmd
 
-database: MongoDB = MongoDB(database=config.MONGO_DB_NAME)
+database = MongoDB()
 
 
 @Client.on_message(
@@ -27,7 +27,7 @@ async def delete_link(client: Client, message: Message) -> Message:
         return await message.reply(text=cleandoc(delete_link.__doc__ or ""), quote=True)
 
     base64_file_link = message.text.split("=")[1]
-    file_document = await database.aggregate(collection="Files", pipeline=[{"$match": {"_id": base64_file_link}}])
+    file_document = await database.get_link_document(base64_file_link=base64_file_link)
 
     if not file_document:
         return await message.reply(
@@ -35,12 +35,12 @@ async def delete_link(client: Client, message: Message) -> Message:
             quote=True,
         )
 
-    file_origin = file_document[0]["file_origin"]
-    file_data = [FileResolverModel(**file) for file in file_document[0]["files"]]
+    file_origin = file_document["file_origin"]
+    file_data = [FileResolverModel(**file) for file in file_document["files"]]
 
-    delete_from_db = await database.delete_one(collection="Files", db_filter={"_id": base64_file_link})
+    delete_link_document = await database.delete_link_document(base64_file_link=base64_file_link)
 
-    if file_origin == config.BACKUP_CHANNEL and delete_from_db.acknowledged:
+    if file_origin == config.BACKUP_CHANNEL and delete_link_document:
         message_ids = [i.message_id for i in file_data]
         await client.delete_messages(chat_id=file_origin, message_ids=message_ids)
 

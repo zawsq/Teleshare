@@ -14,7 +14,7 @@
 * [Deployments](#deployments)
 
 #### FEATURES
-- [All available commands.](current-available-commands)
+- [All available commands.](#all-available-commands)
 - CodeXbotz links compatibility.
 - Fully asynchronous.
 - In-built rate limiter.
@@ -23,7 +23,7 @@
 - Protect content.
 
 #### TODO
-- [ ] Database and Option refactor.
+- [x] Database and Option refactor.
 - [ ] Ban command.
 - [ ] File rename command.
 - [ ] Tokenized access.

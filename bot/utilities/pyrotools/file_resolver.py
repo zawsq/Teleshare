@@ -41,7 +41,7 @@ class SendMedia:
     """
 
     @classmethod
-    async def send_media(  # noqa: PLR0913
+    async def send_media(
         cls,
         client: Client,
         chat_id: int,
@@ -94,7 +94,7 @@ class SendMedia:
         raise UnsupportedFileError(file_type_data)
 
     @classmethod
-    async def send_media_group(  # noqa: PLR0913
+    async def send_media_group(
         cls,
         client: Client,
         chat_id: int,
