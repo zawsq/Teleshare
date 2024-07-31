@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+
 class HTTPServer:
     """
     A simple HTTP server class.
@@ -43,7 +44,7 @@ class HTTPServer:
                     "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
                     "<title>Teleshare</title>"
                     "<style>"
-                    "body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; }"
+                    "body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; }"  # noqa: E501
                     ".container { text-align: center; }"
                     "a { text-decoration: none; color: #007bff; }"
                     "</style>"
@@ -51,7 +52,7 @@ class HTTPServer:
                     "<body>"
                     "<div class='container'>"
                     "<h1>Teleshare</h1>"
-                    "<p><a href='https://github.com/zawsq/Teleshare' target='_blank'>Visit the Teleshare GitHub Repository</a></p>"
+                    "<p><a href='https://github.com/zawsq/Teleshare' target='_blank'>Visit the Teleshare GitHub Repository</a></p>"  # noqa: E501
                     "</div>"
                     "</body>"
                     "</html>"
@@ -75,6 +76,7 @@ class HTTPServer:
         self.logger.info("Serving on %s:%d", self.host, self.port)
         async with server:
             await server.serve_forever()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
