@@ -73,9 +73,14 @@ class MakeFilesCommand:
             Message or None: The replied message or None if burst is triggered.
         """
         unique_id = message.chat.id + message.from_user.id
-        file_type = message.document or message.video or message.photo or message.audio
+        file_type = message.document or message.video or message.photo or message.audio or message.sticker
         if not file_type:
-            return await cls.message_reply(client=client, message=message, text="> Only send files!", quote=True)
+            return await cls.message_reply(
+                client=client,
+                message=message,
+                text="> Only send support files!",
+                quote=True,
+            )
 
         cls.files_cache[unique_id]["counter"] += 1
         cls.files_cache[unique_id]["files"].append(
@@ -141,7 +146,7 @@ class MakeFilesCommand:
             )
 
             for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-                file_type = msg.document or msg.video or msg.photo or msg.audio
+                file_type = msg.document or msg.video or msg.photo or msg.audio or msg.sticker
                 files_to_store.append(
                     {
                         "caption": msg.caption.markdown if msg.caption else None,
