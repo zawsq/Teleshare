@@ -187,8 +187,8 @@ class MakeFilesCommand:
     filters.private
     & PyroFilters.admin(allow_global=True)
     & PyroFilters.create_conversation_filter(
-        convo_start="/make_files",
-        convo_stop="/make_link",
+        convo_start=["/make_files", "/batch", "/batch_files"],
+        convo_stop=["/make_link", "/batch_link"],
     ),
 )
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
@@ -212,4 +212,5 @@ HelpCmd.set_help(
     description=make_files_command_handler.__doc__,
     allow_global=True,
     allow_non_admin=False,
+    alias=["/batch", "/batch_files"],
 )
