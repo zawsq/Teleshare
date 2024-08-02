@@ -124,10 +124,14 @@ class MakeFilesCommand:
         Returns:
             Message: The replied message.
         """
+        forward_limit_size = 100
         unique_id = message.chat.id + message.from_user.id
-        user_cache = [i["message_id"] for i in cls.files_cache[unique_id]["files"]]
+        user_cache_chunk = [
+            [file["message_id"] for file in cls.files_cache[unique_id]["files"][i : i + forward_limit_size]]
+            for i in range(0, len(cls.files_cache[unique_id]["files"]), forward_limit_size)
+        ]
 
-        if not user_cache:
+        if not user_cache_chunk:
             cls.files_cache.pop(unique_id)
             return await cls.message_reply(
                 client=client,
@@ -138,23 +142,25 @@ class MakeFilesCommand:
 
         files_to_store = []
         if options.settings.BACKUP_FILES:
-            forwarded_messages = await client.forward_messages(
-                chat_id=config.BACKUP_CHANNEL,
-                from_chat_id=message.chat.id,
-                message_ids=user_cache,
-                hide_sender_name=True,
-            )
-
-            for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-                file_type = msg.document or msg.video or msg.photo or msg.audio or msg.sticker
-                files_to_store.append(
-                    {
-                        "caption": msg.caption.markdown if msg.caption else None,
-                        "file_id": file_type.file_id,
-                        "message_id": msg.id,
-                    },
+            for user_cache in user_cache_chunk:
+                forwarded_messages = await client.forward_messages(
+                    chat_id=config.BACKUP_CHANNEL,
+                    from_chat_id=message.chat.id,
+                    message_ids=user_cache,
+                    hide_sender_name=True,
                 )
+
+                for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
+                    file_type = msg.document or msg.video or msg.photo or msg.audio or msg.sticker
+                    files_to_store.append(
+                        {
+                            "caption": msg.caption.markdown if msg.caption else None,
+                            "file_id": file_type.file_id,
+                            "message_id": msg.id,
+                        },
+                    )
         else:
+            # Create a copy of the files cache, excluding the 'file_name' field from each file CacheEntry.
             files_to_store = [
                 {k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]["files"]
             ]

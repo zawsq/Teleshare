@@ -16,6 +16,8 @@ database = MongoDB()
 class FileSender:
     """Used to manage file sending functions between codexbotz and teleshare."""
 
+    forward_limit_size = 100
+
     @staticmethod
     async def codexbotz(
         client: Client,
@@ -23,7 +25,9 @@ class FileSender:
         chat_id: int,
         from_chat_id: int,
         protect_content: bool,  # noqa: FBT001
-    ) -> Message | list[Message]:
+    ) -> list[Message]:
+        all_sent_files = []
+
         if len(codex_message_ids) == 1:
             send_files = await client.copy_message(
                 chat_id=chat_id,
@@ -32,16 +36,25 @@ class FileSender:
                 protect_content=protect_content,
             )
 
-        else:
-            send_files = await client.forward_messages(
-                chat_id=chat_id,
-                from_chat_id=from_chat_id,
-                message_ids=codex_message_ids,
-                hide_sender_name=True,
-                protect_content=protect_content,
-            )
+            all_sent_files.append(send_files)
 
-        return send_files
+        else:
+            codex_message_ids_chunk = [
+                codex_message_ids[i : i + FileSender.forward_limit_size]
+                for i in range(0, len(codex_message_ids), FileSender.forward_limit_size)
+            ]
+
+            for codex_files in codex_message_ids_chunk:
+                send_files = await client.forward_messages(
+                    chat_id=chat_id,
+                    from_chat_id=from_chat_id,
+                    message_ids=codex_files,
+                    hide_sender_name=True,
+                    protect_content=protect_content,
+                )
+                all_sent_files.extend(send_files) if isinstance(send_files, list) else all_sent_files.append(send_files)
+
+        return all_sent_files
 
     @staticmethod
     async def teleshare(
@@ -50,7 +63,9 @@ class FileSender:
         file_data: list[FileResolverModel],
         file_origin: int,
         protect_content: bool,  # noqa: FBT001
-    ) -> Message | list[Message]:
+    ) -> list[Message]:
+        all_sent_files = []
+
         if len(file_data) == 1:
             send_files = await Pyrotools.send_media(
                 client=client,
@@ -59,15 +74,23 @@ class FileSender:
                 file_origin=file_origin,
                 protect_content=protect_content,
             )
+            all_sent_files.append(send_files)
         else:
-            send_files = await Pyrotools.send_media_group(
-                client=client,
-                chat_id=chat_id,
-                file_data=file_data,
-                file_origin=file_origin,
-                protect_content=protect_content,
-            )
-        return send_files
+            file_data_chunk = [
+                file_data[i : i + FileSender.forward_limit_size]
+                for i in range(0, len(file_data), FileSender.forward_limit_size)
+            ]
+
+            for i_file_data in file_data_chunk:
+                send_files = await Pyrotools.send_media_group(
+                    client=client,
+                    chat_id=chat_id,
+                    file_data=i_file_data,
+                    file_origin=file_origin,
+                    protect_content=protect_content,
+                )
+                all_sent_files.extend(send_files) if isinstance(send_files, list) else all_sent_files.append(send_files)
+        return all_sent_files
 
 
 @Client.on_message(
@@ -130,7 +153,7 @@ async def file_start(
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
 
     if delete_n_seconds != 0:
-        schedule_delete_message = [msg.id for msg in send_files] if isinstance(send_files, list) else [send_files.id]
+        schedule_delete_message = [msg.id for msg in send_files]
 
         auto_delete_message = (
             options.settings.AUTO_DELETE_MESSAGE.format(int(delete_n_seconds / 60))
