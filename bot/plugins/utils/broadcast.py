@@ -4,7 +4,7 @@ from typing import cast
 from pydantic import BaseModel
 from pyrogram import filters
 from pyrogram.client import Client
-from pyrogram.errors import FloodWait, InputUserDeactivated, PeerIdInvalid, UserIsBlocked
+from pyrogram.errors import FloodWait, InputUserDeactivated, PeerIdInvalid, UserIsBlocked, UserIsBot
 from pyrogram.types import Message
 
 from bot.database import MongoDB
@@ -87,7 +87,7 @@ class BroadcastHandler:
                     pin=broadcast_config.pin,
                 )
                 successful += 1
-            except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid):  # noqa: PERF203
+            except (UserIsBlocked, InputUserDeactivated, PeerIdInvalid, UserIsBot):  # noqa: PERF203
                 unsuccessful_ids.append(
                     user_id,
                 ) if user_id in broadcast_config.user_ids else unsuccessful_ids_codex.append(user_id)
