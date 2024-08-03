@@ -16,7 +16,7 @@ database = MongoDB()
     filters.private
     & PyroFilters.admin(allow_global=True)
     & PyroFilters.user_not_in_conversation()
-    & (filters.audio | filters.photo | filters.video | filters.document),
+    & (filters.audio | filters.photo | filters.video | filters.document | filters.sticker),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None:
@@ -25,7 +25,7 @@ async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None
     if getattr(client.me, "id", None) == message.from_user.id or not config.AUTO_GENERATE_LINK:
         return None
 
-    file_type = message.document or message.video or message.photo or message.audio
+    file_type = message.document or message.video or message.photo or message.audio or message.sticker
     message_id = message.id
 
     if options.settings.BACKUP_FILES:
