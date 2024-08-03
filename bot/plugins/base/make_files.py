@@ -98,11 +98,11 @@ class MakeFilesCommand:
             return None
 
         file_names = "\n".join(i["file_name"] for i in cls.files_cache[unique_id]["files"])
-        extra_message = "- Send more documents for batch files.\n- Send /make_link to create a sharable link."
+        extra_message = ">File list truncated.\n- Send more files to continue.\n- Use /make_link for a shareable link."
         return await cls.message_reply(
             client=client,
             message=message,
-            text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}",
+            text=f"```\nFile(s):\n{file_names[-3000:]}\n```\n{extra_message}",
             quote=True,
         )
 
