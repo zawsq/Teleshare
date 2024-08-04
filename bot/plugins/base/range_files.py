@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import config
 from bot.database import MongoDB
+from bot.utilities.pyrotools import HelpCmd
 from bot.utilities.helpers import DataEncoder, RateLimiter
 from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 
@@ -83,3 +84,11 @@ async def range_files(client: Client, message: ConvoMessage) -> Message | None:
             disable_web_page_preview=True,
         )
     return await message.reply(text="Couldn't add files to database", quote=True)
+
+
+HelpCmd.set_help(
+    command="range_files",
+    description=range_files.__doc__,
+    allow_global=False,
+    allow_non_admin=False,
+)
