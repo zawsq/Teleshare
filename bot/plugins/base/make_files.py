@@ -73,9 +73,14 @@ class MakeFilesCommand:
             Message or None: The replied message or None if burst is triggered.
         """
         unique_id = message.chat.id + message.from_user.id
-        file_type = message.document or message.video or message.photo or message.audio
+        file_type = message.document or message.video or message.photo or message.audio or message.sticker
         if not file_type:
-            return await cls.message_reply(client=client, message=message, text="> Only send files!", quote=True)
+            return await cls.message_reply(
+                client=client,
+                message=message,
+                text="> Only send support files!",
+                quote=True,
+            )
 
         cls.files_cache[unique_id]["counter"] += 1
         cls.files_cache[unique_id]["files"].append(
@@ -93,11 +98,11 @@ class MakeFilesCommand:
             return None
 
         file_names = "\n".join(i["file_name"] for i in cls.files_cache[unique_id]["files"])
-        extra_message = "- Send more documents for batch files.\n- Send /make_link to create a sharable link."
+        extra_message = ">File list truncated.\n- Send more files to continue.\n- Use /make_link for a shareable link."
         return await cls.message_reply(
             client=client,
             message=message,
-            text=f"```\nFile(s):\n{file_names}\n```\n{extra_message}",
+            text=f"```\nFile(s):\n{file_names[-3000:]}\n```\n{extra_message}",
             quote=True,
         )
 
@@ -119,10 +124,14 @@ class MakeFilesCommand:
         Returns:
             Message: The replied message.
         """
+        forward_limit_size = 100
         unique_id = message.chat.id + message.from_user.id
-        user_cache = [i["message_id"] for i in cls.files_cache[unique_id]["files"]]
+        user_cache_chunk = [
+            [file["message_id"] for file in cls.files_cache[unique_id]["files"][i : i + forward_limit_size]]
+            for i in range(0, len(cls.files_cache[unique_id]["files"]), forward_limit_size)
+        ]
 
-        if not user_cache:
+        if not user_cache_chunk:
             cls.files_cache.pop(unique_id)
             return await cls.message_reply(
                 client=client,
@@ -133,23 +142,25 @@ class MakeFilesCommand:
 
         files_to_store = []
         if options.settings.BACKUP_FILES:
-            forwarded_messages = await client.forward_messages(
-                chat_id=config.BACKUP_CHANNEL,
-                from_chat_id=message.chat.id,
-                message_ids=user_cache,
-                hide_sender_name=True,
-            )
-
-            for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-                file_type = msg.document or msg.video or msg.photo or msg.audio
-                files_to_store.append(
-                    {
-                        "caption": msg.caption.markdown if msg.caption else None,
-                        "file_id": file_type.file_id,
-                        "message_id": msg.id,
-                    },
+            for user_cache in user_cache_chunk:
+                forwarded_messages = await client.forward_messages(
+                    chat_id=config.BACKUP_CHANNEL,
+                    from_chat_id=message.chat.id,
+                    message_ids=user_cache,
+                    hide_sender_name=True,
                 )
+
+                for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
+                    file_type = msg.document or msg.video or msg.photo or msg.audio or msg.sticker
+                    files_to_store.append(
+                        {
+                            "caption": msg.caption.markdown if msg.caption else None,
+                            "file_id": file_type.file_id,
+                            "message_id": msg.id,
+                        },
+                    )
         else:
+            # Create a copy of the files cache, excluding the 'file_name' field from each file CacheEntry.
             files_to_store = [
                 {k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]["files"]
             ]
@@ -182,8 +193,8 @@ class MakeFilesCommand:
     filters.private
     & PyroFilters.admin(allow_global=True)
     & PyroFilters.create_conversation_filter(
-        convo_start="/make_files",
-        convo_stop="/make_link",
+        convo_start=["/make_files", "/batch", "/batch_files"],
+        convo_stop=["/make_link", "/batch_link"],
     ),
 )
 async def make_files_command_handler(client: Client, message: ConvoMessage) -> Message | None:
@@ -207,4 +218,5 @@ HelpCmd.set_help(
     description=make_files_command_handler.__doc__,
     allow_global=True,
     allow_non_admin=False,
+    alias=["/batch", "/batch_files"],
 )

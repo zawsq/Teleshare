@@ -76,6 +76,7 @@ class SendMedia:
             "DOCUMENT": client.send_document,
             "PHOTO": client.send_photo,
             "VIDEO": client.send_video,
+            "STICKER": client.send_sticker,
         }
         if file_type_data:
             file_type = file_type_data.file_type.name
@@ -83,9 +84,12 @@ class SendMedia:
                 file_kwargs: dict[str, int | str] = {
                     "chat_id": chat_id,
                     file_type.lower(): file_data.file_id,
-                    "caption": file_data.caption or "",
                     "protect_content": protect_content,
                 }
+
+                if file_type != "STICKER":
+                    file_kwargs["caption"] = file_data.caption or ""
+
                 return await methods[file_type](
                     **file_kwargs,  # pyright: ignore[reportCallIssue]
                     # https://github.com/microsoft/pyright/issues/5069#issuecomment-1533839392

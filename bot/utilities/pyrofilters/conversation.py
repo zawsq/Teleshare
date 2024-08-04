@@ -36,20 +36,20 @@ class ConversationFilter:
     @classmethod
     def create_conversation_filter(
         cls,
-        convo_start: str,
-        convo_stop: str | None = None,
+        convo_start: str | list | set,
+        convo_stop: str | list | set | None = None,
     ) -> filters.Filter:
-        """Create a filter function for the given convo_start.
+        """Create a filter function for a conversation.
 
         Parameters:
-            convo_start (str):
-                The starting text for the conversation.
-            convo_stop (str, optional):
-                The text to stop the conversation. Defaults to None.
+            convo_start (str | list | set):
+                The starting text or texts for the conversation.
+            convo_stop (str | list | set | None):
+                The text or texts to stop the conversation. Defaults to None.
 
         Returns:
             filters.Filter:
-                A filter function that can be used with Update Handlers
+                A filter function that can be used with Update Handlers.
         """
 
         async def func(flt: filters.Filter, client: Client, message: ConvoMessage) -> bool:  # noqa: ARG001
@@ -60,12 +60,19 @@ class ConversationFilter:
             message.conversation = False
             message.convo_stop = False
 
-            if text and text.startswith(convo_start):
+            convo_start_check = convo_start if isinstance(convo_start, list | set) else [convo_start]
+
+            if convo_stop is not None:
+                convo_stop_check = convo_stop if isinstance(convo_stop, list | set) else [convo_stop]
+            else:
+                convo_stop_check = []
+
+            if text and text in convo_start_check:
                 message.convo_start = True
                 cls._convo_cache.add(unique_id)
                 return True
 
-            if convo_stop is not None and text and unique_id in cls._convo_cache and text.startswith(convo_stop):
+            if text and unique_id in cls._convo_cache and text in convo_stop_check:
                 message.convo_stop = True
                 cls._convo_cache.discard(unique_id)
                 return True
