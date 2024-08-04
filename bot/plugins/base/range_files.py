@@ -18,7 +18,7 @@ database = MongoDB()
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def range_files(client: Client, message: ConvoMessage) -> Message | None:
-    """>**Fetch files directly from database channel to create a sharable link of ranged file ids.**
+    """>**Fetch files directly from backup channel to create a sharable link of ranged file ids.**
 
     **Usage:**
         /range_files [start link] [end link] [(optional) exclude id]

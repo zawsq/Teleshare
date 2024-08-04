@@ -14,7 +14,7 @@ database = MongoDB()
     filters.private & PyroFilters.admin() & filters.command("stats"),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
-async def stats(client: Client, message: Message) -> Message:  # noqa: ARG001
+async def stats(_: Client, message: Message) -> Message:
     """A command to display links and users count.:
 
     **Usage:**
