@@ -50,7 +50,7 @@ async def range_files(client: Client, message: ConvoMessage) -> Message | None:
 
     files_to_store = []
     for file in fetch_files:
-        file_type = file.document or file.video or file.photo or file.audio
+        file_type = file.document or file.video or file.photo or file.audio or file.sticker
 
         if not file_type or file.empty:
             continue
