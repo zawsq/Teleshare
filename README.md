@@ -38,6 +38,7 @@ this command may take awhile depending on user count.
 4. `/option`: Use to configure database options. See [bot options](#bot-options) for more informations.
 5. `/delete_link`: Delete an accessible link from the database and delete the corresponding file from the backup channel.
 6. Auto link generation: just forward or send a file directly to the bot.
+7. `/range_files`: Fetch files directly from backup channel to create a sharable link of ranged file ids.
 
 #### Frequently Asked Questions
 <details>
