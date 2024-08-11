@@ -24,7 +24,8 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 
 # Create non-root user
 RUN groupadd -r zaws && useradd -r -g zaws -s /bin/sh -d /bot zaws && \
-    chown -R zaws:zaws /bot
+    chown -R zaws:zaws /bot && \
+    chmod -R 755 /bot
 
 USER zaws
 
