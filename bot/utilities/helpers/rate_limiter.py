@@ -36,8 +36,6 @@ class RateLimiter:
     last_second_reset: ClassVar[float] = time.perf_counter()
     last_minute_reset: ClassVar[float] = time.perf_counter()
 
-    cooldown_limiter_lock: ClassVar[bool] = False
-
     @classmethod
     def cooldown_limiter(cls) -> None:
         """
@@ -48,7 +46,7 @@ class RateLimiter:
         exec_per_min = cls.MAX_EXECUTIONS_PER_MINUTE_SAME_CHAT
         cls.logger.info("cooldown_limiter Started...")
 
-        while True and not cls.cooldown_limiter_lock:
+        while True:
             current_time = time.perf_counter()
             if current_time - cls.last_minute_reset >= 60:  # noqa: PLR2004
                 cls.last_minute_reset = current_time
@@ -60,6 +58,7 @@ class RateLimiter:
                         cls.chat_execution_counts.pop(key)
                     else:
                         cls.chat_execution_counts.update({key: {"exec": execs, "queue": new_queue}})
+            time.sleep(2)
 
     @classmethod
     def hybrid_limiter(cls, func_count: int = 1) -> Callable[[Callable], Callable]:
