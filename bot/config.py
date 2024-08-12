@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import ValidationError
+from pydantic import ValidationError, field_validator
 from pydantic.networks import UrlConstraints
 from pydantic_core import MultiHostUrl
 from pydantic_settings import (
@@ -55,6 +55,13 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=f"{BASE_PATH}/.env",
     )
+
+    @field_validator("ROOT_ADMINS_ID", "FORCE_SUB_CHANNELS", mode="before")
+    @classmethod
+    def convert_int_to_list(cls, value: int | list[int]) -> list[int]:
+        if isinstance(value, int):
+            return [value]
+        return value
 
     @classmethod
     def settings_customise_sources(
