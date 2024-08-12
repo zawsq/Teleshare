@@ -57,6 +57,7 @@ async def main() -> None:
         background_tasks.add(task)
     if config.RATE_LIMITER:
         thread = threading.Thread(target=RateLimiter.cooldown_limiter)
+        thread.daemon = True
         thread.start()
 
     await idle()
@@ -64,7 +65,6 @@ async def main() -> None:
     if task:
         task.add_done_callback(background_tasks.discard)
 
-    RateLimiter.cooldown_limiter_lock = True
     await bot_client.stop()
 
 
