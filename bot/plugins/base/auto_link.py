@@ -1,3 +1,5 @@
+import uuid
+
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -32,7 +34,8 @@ async def auto_link_gen(client: Client, message: ConvoMessage) -> Message | None
         backup_file = await message.copy(chat_id=config.BACKUP_CHANNEL)
         message_id = backup_file[0].id if isinstance(backup_file, list) else backup_file.id
 
-    file_link = DataEncoder.encode_data(str(message.date))
+    unique_link = f"{uuid.uuid4().int}"
+    file_link = DataEncoder.encode_data(unique_link)
     file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
 
     file_data = FileResolverModel(

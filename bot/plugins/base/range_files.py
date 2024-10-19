@@ -1,3 +1,4 @@
+import uuid
 from inspect import cleandoc
 
 from pyrogram import filters
@@ -66,7 +67,8 @@ async def range_files(client: Client, message: ConvoMessage) -> Message | None:
     if not files_to_store:
         return await message.reply(text="Couldn't fetch any files from given range.", quote=True)
 
-    file_link = DataEncoder.encode_data(str(message.date))
+    unique_link = f"{uuid.uuid4().int}"
+    file_link = DataEncoder.encode_data(unique_link)
     file_origin = config.BACKUP_CHANNEL
 
     add_file = await database.add_file(file_link=file_link, file_origin=file_origin, file_data=files_to_store)
