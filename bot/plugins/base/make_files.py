@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 from typing import Any, ClassVar, TypedDict
 
 from pyrogram import filters
@@ -165,7 +166,8 @@ class MakeFilesCommand:
                 {k: v for k, v in i.items() if k != "file_name"} for i in cls.files_cache[unique_id]["files"]
             ]
 
-        file_link = DataEncoder.encode_data(str(message.date))
+        unique_link = f"{uuid.uuid4().int}"
+        file_link = DataEncoder.encode_data(unique_link)
         file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
 
         add_file = await cls.database.add_file(file_link=file_link, file_origin=file_origin, file_data=files_to_store)
