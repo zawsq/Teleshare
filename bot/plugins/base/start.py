@@ -124,7 +124,7 @@ async def file_start(
                 base64_string=base64_file_link,
                 backup_channel=config.BACKUP_CHANNEL,
             )
-        except DataValidationError:
+        except (DataValidationError, IndexError):
             await message.reply(text="Attempted to resolve link: Got invalid link.")
             return message.stop_propagation()
 
