@@ -83,5 +83,5 @@ HelpCmd.set_help(
     description=option_config_cmd.__doc__,
     allow_global=False,
     allow_non_admin=False,
-    alias=["settings"]
+    alias=["settings"],
 )
