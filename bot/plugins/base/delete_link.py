@@ -26,7 +26,7 @@ async def delete_link(client: Client, message: Message) -> Message:
     if not message.command[1:]:
         return await message.reply(text=cleandoc(delete_link.__doc__ or ""), quote=True)
 
-    base64_file_link = message.text.split("=")[1]
+    base64_file_link = message.text.split("start=")[1]
     file_document = await database.get_link_document(base64_file_link=base64_file_link)
 
     if not file_document:
