@@ -46,6 +46,8 @@ class PyroHelper:
                 "Channel Title 2": "https://t.me/joinchat/FGHIJ..."
             }
         """
+        if not channels:
+            return {}
         channels_n_invite = {}
         for channel_id in channels:
             channel = await client.get_chat(chat_id=channel_id)

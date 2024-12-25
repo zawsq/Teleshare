@@ -42,8 +42,12 @@ async def main() -> None:
     await options.load_settings()
     await bot_client.start()
     # Bot setup
+
     try:
-        channels_n_invite = await PyroHelper.get_channel_invites(client=bot_client, channels=config.FORCE_SUB_CHANNELS)
+        channels_n_invite = await PyroHelper.get_channel_invites(
+            client=bot_client,
+            channels=config.FORCE_SUB_CHANNELS,
+        )
         bot_client.channels_n_invite = channels_n_invite  # pyright: ignore[reportAttributeAccessIssue]
     except (ChannelInvalid, ChatAdminRequired, NoInviteLinkError) as e:
         sys.exit(f"Please add and give me permission in FORCE_SUB_CHANNELS and BACKUP_CHANNEL:\n{e}")
