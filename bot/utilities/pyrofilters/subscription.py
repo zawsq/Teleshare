@@ -51,7 +51,7 @@ class SubscriptionFilter:
                 ChatMemberStatus.MEMBER,
             ]
 
-            if user_id in config.ROOT_ADMINS_ID:
+            if user_id in config.ROOT_ADMINS_ID or not config.FORCE_SUB_CHANNELS:
                 return True
 
             if user_id in cls._subs_cache:

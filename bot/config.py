@@ -49,7 +49,7 @@ class Config(BaseSettings):
     ROOT_ADMINS_ID: list[int]
     PRIVATE_REQUEST: bool = False
     PROTECT_CONTENT: bool = True
-    FORCE_SUB_CHANNELS: list[int]
+    FORCE_SUB_CHANNELS: list[int] = []
     AUTO_GENERATE_LINK: bool = True
 
     model_config = SettingsConfigDict(
