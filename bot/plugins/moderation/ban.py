@@ -29,9 +29,9 @@ async def ban_user(client: Client, message: ConvoMessage) -> Message | None:  # 
         ban_user = await database.ban_user(user_id)
 
         if ban_user:
-            return await message.reply(f"User: `{user_id}` has been banned")
-        return await message.reply(f"Cannot find: `{user_id}`")
-    return await message.reply(f"Please input a valid user id: `{user_id}`")
+            return await message.reply(text=f"User: `{user_id}` has been banned", quote=True)
+        return await message.reply(f"Cannot find: `{user_id}`", quote=True)
+    return await message.reply(text=f"Please input a valid user id: `{user_id}`", quote=True)
 
 
 HelpCmd.set_help(
