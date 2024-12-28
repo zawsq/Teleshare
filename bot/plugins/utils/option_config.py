@@ -15,7 +15,7 @@ BOOLEN_CONVERT = {"true": True, "false": False}
 
 
 @Client.on_message(
-    filters.private & PyroFilters.admin() & filters.command(["option","settings"]),
+    filters.private & PyroFilters.admin() & filters.command(["option", "settings"]),
 )
 @RateLimiter.hybrid_limiter(func_count=1)
 async def option_config_cmd(client: Client, message: Message) -> Message | None:  # noqa: ARG001
