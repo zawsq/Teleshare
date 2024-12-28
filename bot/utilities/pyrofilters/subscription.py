@@ -58,19 +58,15 @@ class SubscriptionFilter:
             if user_id in config.ROOT_ADMINS_ID or not config.FORCE_SUB_CHANNELS:
                 return True
 
+            if await database.is_user_banned(user_id):
+                return False
+
             if user_id in cls._subs_cache:
                 user_cache_time = cls._subs_cache.get(user_id)
                 current_time = datetime.datetime.now(tz=tzlocal.get_localzone())
 
-                is_user_banned = await database.is_user_banned(user_id)
-
-                if (
-                    user_cache_time
-                    and (current_time - user_cache_time)
-                    <= datetime.timedelta(
-                        seconds=cls.CACHE_USER_SECONDS,
-                    )
-                    and not is_user_banned
+                if user_cache_time and (current_time - user_cache_time) <= datetime.timedelta(
+                    seconds=cls.CACHE_USER_SECONDS,
                 ):
                     return True
 

@@ -1,4 +1,5 @@
 import dns.resolver
+from async_lru import alru_cache
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import ConfigurationError
 
@@ -30,6 +31,7 @@ class MongoDB(Moderation):
             self.client = AsyncIOMotorClient(host=str(config.MONGO_DB_URL))
         self.db = self.client[name if name else config.MONGO_DB_NAME]
 
+    @alru_cache(maxsize=10, ttl=10)
     async def add_user(self, user_id: int) -> bool:
         """
         Adds a user to the database.
