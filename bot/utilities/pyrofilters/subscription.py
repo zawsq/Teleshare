@@ -10,6 +10,9 @@ from pyrogram.errors import UserNotParticipant
 from pyrogram.types import Message
 
 from bot.config import config
+from bot.database import MongoDB
+
+database = MongoDB()
 
 
 class SubscriptionFilter:
@@ -17,10 +20,11 @@ class SubscriptionFilter:
     A filter to check if a user is subscribed to the required channels.
 
     Attributes:
+        CACHE_USER_SECONDS (int): Amount of seconds before checking the user again to avoid spams.
         _subs_cache (ClassVar[LRU[int, datetime.datetime]]): A lru dict to store user IDs and their last check time.
     """
 
-    CACHE_USER_SECOND: int = 10
+    CACHE_USER_SECONDS: int = 15
     _subs_cache: ClassVar[LRU] = LRU(10)
 
     @classmethod
@@ -58,8 +62,15 @@ class SubscriptionFilter:
                 user_cache_time = cls._subs_cache.get(user_id)
                 current_time = datetime.datetime.now(tz=tzlocal.get_localzone())
 
-                if user_cache_time and (current_time - user_cache_time) <= datetime.timedelta(
-                    seconds=cls.CACHE_USER_SECOND,
+                is_user_banned = await database.is_user_banned(user_id)
+
+                if (
+                    user_cache_time
+                    and (current_time - user_cache_time)
+                    <= datetime.timedelta(
+                        seconds=cls.CACHE_USER_SECONDS,
+                    )
+                    and not is_user_banned
                 ):
                     return True
 
@@ -74,6 +85,6 @@ class SubscriptionFilter:
                 return False
 
             cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
-            return True
+            return False
 
         return filters.create(func, "SubscriptionFilter")

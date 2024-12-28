@@ -4,8 +4,10 @@ from pymongo.errors import ConfigurationError
 
 from bot.config import config
 
+from .moderation import Moderation
 
-class MongoDB:
+
+class MongoDB(Moderation):
     """
     A class representing a MongoDB database connection.
 

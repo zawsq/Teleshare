@@ -194,6 +194,7 @@ class MakeFilesCommand:
 @Client.on_message(
     filters.private
     & PyroFilters.admin(allow_global=True)
+    & PyroFilters.subscription()
     & PyroFilters.create_conversation_filter(
         convo_start=["/make_files", "/batch", "/batch_files"],
         convo_stop=["/make_link", "/batch_link"],

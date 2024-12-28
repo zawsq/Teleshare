@@ -17,6 +17,7 @@ database = MongoDB()
 @Client.on_message(
     filters.private
     & PyroFilters.admin(allow_global=True)
+    & PyroFilters.subscription()
     & PyroFilters.user_not_in_conversation()
     & (filters.audio | filters.photo | filters.video | filters.document | filters.sticker),
 )
