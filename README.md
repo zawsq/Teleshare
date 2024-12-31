@@ -39,6 +39,7 @@ this command may take awhile depending on user count.
 5. `/delete_link`: Delete an accessible link from the database and delete the corresponding file from the backup channel.
 6. Auto link generation: just forward or send a file directly to the bot.
 7. `/range_files`: Fetch files directly from backup channel to create a sharable link of ranged file ids.
+8. `/ban` and `/unban`: Bans a user from using the bot.
 
 #### Frequently Asked Questions
 <details>
@@ -80,7 +81,7 @@ Main config
 - `ROOT_ADMINS_ID (list[int])`: bot admins.
 - `PRIVATE_REQUEST (bool)`: enable private request on private channel/group. default to `False`.
 - `PROTECT_CONTENT (bool)`: disalllow forwarding and saving of files sent by the bot. default to `True`.
-- `FORCE_SUB_CHANNELS (list[int])`: force subscription channels.
+- `FORCE_SUB_CHANNELS (list[int] | optional)`: force subscription channels, leave it blank or do not add it on `.env` if you do not need a subscription channel.
 - `AUTO_GENERATE_LINK`: toggle auto link generator when file is recieve directly. default to `True`.
 </details>
 
@@ -88,7 +89,7 @@ Main config
 <summary>Bot options</summary>
 
 - `FORCE_SUB_MESSAGE (str|int)`: message during force subscription.
-- `STARR_MESSAGE (str|int)`: a start message.
+- `START_MESSAGE (str|int)`: a start message.
 - `AUTO_DELETE_MESSAGE (str|int)`: an auto delete messages, {} is the amount of minutes.
 
 - `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
@@ -161,7 +162,7 @@ If this repo cannot be deployed in Heroku, please fork it and deploy it manually
 <details>
 <summary>Koyeb Deployment</summary>
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/services/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=buildpack&run_command=cd+bot+%26%26+python+main.py&env[API_ID]=api_id&env[API_HASH]=api_hash&env[BOT_TOKEN]=bot_token&env[MONGO_DB_URL]=mongodb_url&env[BACKUP_CHANNEL]=backup&env[ROOT_ADMINS_ID]=admins&env[FORCE_SUB_CHANNELS]=force_sub)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/services/deploy?type=git&repository=github.com/zawsq/Teleshare&branch=main&builder=dockerfile&env%5BAPI_ID%5D=api_id&env%5BAPI_HASH%5D=api_hash&env%5BBOT_TOKEN%5D=bot_token&env%5BMONGO_DB_URL%5D=mongodb_url&env%5BBACKUP_CHANNEL%5D=backup&env%5BROOT_ADMINS_ID%5D=admins&env%5BFORCE_SUB_CHANNELS%5D=force_sub)
 
 Just setup the environment variables and your done.
 </details>
