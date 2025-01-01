@@ -59,6 +59,7 @@ class SubscriptionFilter:
                 return True
 
             if await database.is_user_banned(user_id):
+                message.user_is_banned = True
                 return False
 
             if user_id in cls._subs_cache:

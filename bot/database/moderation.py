@@ -42,7 +42,7 @@ class Moderation:
         )
         return bool(result.matched_count)
 
-    @alru_cache(maxsize=69, ttl=10)
+    @alru_cache(maxsize=69, ttl=15)
     async def is_user_banned(self, user_id: int) -> bool:
         """
         Checks if a user is banned in the database.

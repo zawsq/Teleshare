@@ -186,6 +186,13 @@ async def return_start(
     Handle start command without files or not subscribed.
     """
 
+    if hasattr(message, "user_is_banned") and message.user_is_banned:
+        return await PyroHelper.option_message(
+            client=client,
+            message=message,
+            option_key=options.settings.BANNED_USER_MESSAGE,
+        )
+
     channels_n_invite = client.channels_n_invite  # type: ignore[reportAttributeAccessIssue]
     buttons = []
 
