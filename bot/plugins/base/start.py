@@ -6,7 +6,7 @@ from bot.config import config
 from bot.database import MongoDB
 from bot.options import options
 from bot.utilities.helpers import DataEncoder, DataValidationError, PyroHelper, RateLimiter
-from bot.utilities.pyrofilters import PyroFilters
+from bot.utilities.pyrofilters import PyroFilters, SubscriptionMessage
 from bot.utilities.pyrotools import FileResolverModel, HelpCmd, Pyrotools
 from bot.utilities.schedule_manager import schedule_manager
 
@@ -180,7 +180,7 @@ async def file_start(
 @RateLimiter.hybrid_limiter(func_count=1)
 async def return_start(
     client: Client,
-    message: Message,
+    message: SubscriptionMessage,
 ) -> Message | None:
     """
     Handle start command without files or not subscribed.
