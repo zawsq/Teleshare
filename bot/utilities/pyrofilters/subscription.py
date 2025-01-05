@@ -15,6 +15,11 @@ from bot.database import MongoDB
 database = MongoDB()
 
 
+class SubscriptionMessage(Message):
+    def __init__(self) -> None:
+        self.user_is_banned = False
+
+
 class SubscriptionFilter:
     """
     A filter to check if a user is subscribed to the required channels.
@@ -36,7 +41,7 @@ class SubscriptionFilter:
             filters.Filter: A filter to check if a user is subscribed to the required channels.
         """
 
-        async def func(flt: None, client: Client, message: Message) -> bool:  # noqa: ARG001
+        async def func(flt: None, client: Client, message: SubscriptionMessage) -> bool:  # noqa: ARG001
             """
             Checks if a user is subscribed to the required channels.
 
@@ -59,6 +64,7 @@ class SubscriptionFilter:
                 return True
 
             if await database.is_user_banned(user_id):
+                message.user_is_banned = True
                 return False
 
             if user_id in cls._subs_cache:
