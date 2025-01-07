@@ -38,8 +38,6 @@ class PyroHelper:
         if not channels:
             return {}
 
-        default = ChannelInfo(is_private=False, invite_link="invite link", channel_id=00000000)
-
         channels_n_invite: dict[str, ChannelInfo] = {}
 
         for channel_id in channels:
@@ -53,14 +51,13 @@ class PyroHelper:
             )
 
             if get_link is not None:
-                channel_invite = get_link.link  # type: ignore[reportAttributeAccessIssue]
-                channels_n_invite.setdefault(channel.title, default).update(
-                    ChannelInfo(
-                        is_private=bool(channel.username is None),  # type: ignore[reportAttributeAccessIssue]
-                        invite_link=channel_invite,
-                        channel_id=channel_id,
-                    ),
+                channel_invite = get_link.link  # type: ignore[reportAttributeAccessIssue]if channel.title not in channels_n_invite:
+                channels_n_invite[channel.title] = ChannelInfo(
+                    is_private=bool(channel.username is None),  # type: ignore[reportAttributeAccessIssue]
+                    invite_link=channel_invite,
+                    channel_id=channel_id,
                 )
+
             else:
                 raise NoInviteLinkError(channel_id)
 
