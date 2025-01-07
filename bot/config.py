@@ -7,7 +7,7 @@ Config: Bot Config
 import logging
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, TypedDict
 
 from pydantic import ValidationError, field_validator
 from pydantic.networks import UrlConstraints
@@ -23,6 +23,12 @@ from pydantic_settings.sources import SettingsError
 
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
+
+
+class ChannelInfo(TypedDict):
+    is_private: bool
+    invite_link: str
+    channel_id: int
 
 
 class Config(BaseSettings):
@@ -52,6 +58,9 @@ class Config(BaseSettings):
     FORCE_SUB_CHANNELS: list[int] = []
     AUTO_GENERATE_LINK: bool = True
 
+    # Injected Config
+    channels_n_invite: dict[str, ChannelInfo] = {}
+
     model_config = SettingsConfigDict(
         env_file=f"{BASE_PATH}/.env",
     )
@@ -62,6 +71,11 @@ class Config(BaseSettings):
         if isinstance(value, int):
             return [value]
         return value
+
+    @field_validator("channels_n_invite", mode="before")
+    @classmethod
+    def ignore_keys(cls, value: dict[str, ChannelInfo]) -> dict[str, ChannelInfo]:
+        return {}
 
     @classmethod
     def settings_customise_sources(

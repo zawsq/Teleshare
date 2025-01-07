@@ -4,7 +4,7 @@ from pyrogram import raw
 from pyrogram.client import Client
 from pyrogram.types import Message
 
-from bot.config import config
+from bot.config import ChannelInfo, config
 
 
 class NoInviteLinkError(Exception):
@@ -16,7 +16,7 @@ class PyroHelper:
     """Helper class for additional Pyrogram functions."""
 
     @staticmethod
-    async def get_channel_invites(client: Client, channels: list[int]) -> dict[str, int]:
+    async def get_channel_invites(client: Client, channels: list[int]) -> dict[str, ChannelInfo]:
         """
         Get invite links for a list of channels.
 
@@ -27,28 +27,21 @@ class PyroHelper:
                 List of channel IDs to get invite links for.
 
         Returns:
-            dict[str, int]:
-                Dictionary with channel titles as keys and their invite links as values.
+            dict[str, ChannelInfo]:
+                Dictionary with channel titles as keys and ChannelInfo.
 
         Raises:
             ValueError:
                 If any channel in the list does not have an invite link.
 
-        Example:
-            make sure the bot have required permissions to get invites
-            >>> helper = PyroHelper()
-
-            >>> channels = [123456789, 987654321]
-            >>> invite_links = await helper.get_channel_invites(app, channels)
-            >>> print(invite_links)
-            {
-                "Channel Title 1": "https://t.me/joinchat/ABCDE...",
-                "Channel Title 2": "https://t.me/joinchat/FGHIJ..."
-            }
         """
         if not channels:
             return {}
-        channels_n_invite = {}
+
+        default = ChannelInfo(is_private=False, invite_link="invite link", channel_id=00000000)
+
+        channels_n_invite: dict[str, ChannelInfo] = {}
+
         for channel_id in channels:
             channel = await client.get_chat(chat_id=channel_id)
             get_link = await client.invoke(
@@ -61,7 +54,13 @@ class PyroHelper:
 
             if get_link is not None:
                 channel_invite = get_link.link  # type: ignore[reportAttributeAccessIssue]
-                channels_n_invite[channel.title] = channel_invite
+                channels_n_invite.setdefault(channel.title, default).update(
+                    ChannelInfo(
+                        is_private=bool(channel.username is None),  # type: ignore[reportAttributeAccessIssue]
+                        invite_link=channel_invite,
+                        channel_id=channel_id,
+                    ),
+                )
             else:
                 raise NoInviteLinkError(channel_id)
 
