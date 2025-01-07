@@ -7,7 +7,7 @@ Config: Bot Config
 import logging
 import sys
 from pathlib import Path
-from typing import Annotated, TypedDict
+from typing import Annotated
 
 from pydantic import ValidationError, field_validator
 from pydantic.networks import UrlConstraints
@@ -20,6 +20,7 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 from pydantic_settings.sources import SettingsError
+from typing_extensions import TypedDict
 
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
