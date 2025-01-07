@@ -48,7 +48,7 @@ async def main() -> None:
             client=bot_client,
             channels=config.FORCE_SUB_CHANNELS,
         )
-        bot_client.channels_n_invite = channels_n_invite  # pyright: ignore[reportAttributeAccessIssue]
+        config.channels_n_invite = channels_n_invite
     except (ChannelInvalid, ChatAdminRequired, NoInviteLinkError) as e:
         sys.exit(f"Please add and give me permission in FORCE_SUB_CHANNELS and BACKUP_CHANNEL:\n{e}")
 

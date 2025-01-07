@@ -21,6 +21,8 @@ from pydantic_settings import (
 )
 from pydantic_settings.sources import SettingsError
 
+from bot.utilities.helpers import ChannelInfo
+
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
 
@@ -52,6 +54,9 @@ class Config(BaseSettings):
     FORCE_SUB_CHANNELS: list[int] = []
     AUTO_GENERATE_LINK: bool = True
 
+    # Injected Config
+    channels_n_invite: dict[str, ChannelInfo] = {}
+
     model_config = SettingsConfigDict(
         env_file=f"{BASE_PATH}/.env",
     )
@@ -62,6 +67,11 @@ class Config(BaseSettings):
         if isinstance(value, int):
             return [value]
         return value
+
+    @field_validator("channels_n_invite", mode="before")
+    @classmethod
+    def ignore_keys(cls, value: dict[str, ChannelInfo]) -> dict[str, ChannelInfo]:
+        return {}
 
     @classmethod
     def settings_customise_sources(
