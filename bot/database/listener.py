@@ -1,9 +1,11 @@
+from async_lru import alru_cache
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 
 class Listener:
     db: AsyncIOMotorDatabase
 
+    @alru_cache(maxsize=69, ttl=20)
     async def user_join_request(self, user_id: int, channel_id: int) -> bool:
         """
         Adds a private channel to the user's list of channels in the database.
@@ -24,6 +26,7 @@ class Listener:
 
         return result.acknowledged
 
+    @alru_cache(maxsize=69, ttl=5)
     async def user_requested_channels(self, user_id: int) -> list:
         """
         Fetches the list of channels for the user from the database.
