@@ -7,7 +7,7 @@ Config: Bot Config
 import logging
 import sys
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, TypedDict
 
 from pydantic import ValidationError, field_validator
 from pydantic.networks import UrlConstraints
@@ -21,10 +21,14 @@ from pydantic_settings import (
 )
 from pydantic_settings.sources import SettingsError
 
-from bot.utilities.helpers import ChannelInfo
-
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
+
+
+class ChannelInfo(TypedDict):
+    is_private: bool
+    invite_link: str
+    channel_id: int
 
 
 class Config(BaseSettings):

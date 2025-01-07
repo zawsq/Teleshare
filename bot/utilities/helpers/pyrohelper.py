@@ -1,21 +1,15 @@
-from typing import Any, TypedDict, cast
+from typing import Any, cast
 
 from pyrogram import raw
 from pyrogram.client import Client
 from pyrogram.types import Message
 
-from bot.config import config
+from bot.config import ChannelInfo, config
 
 
 class NoInviteLinkError(Exception):
     def __init__(self, channel: int | str) -> None:
         super().__init__(f"{channel} has no invite link")
-
-
-class ChannelInfo(TypedDict):
-    is_private: bool
-    invite_link: str
-    channel_id: int
 
 
 class PyroHelper:
