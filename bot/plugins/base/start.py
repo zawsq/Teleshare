@@ -193,11 +193,11 @@ async def return_start(
             option_key=options.settings.BANNED_USER_MESSAGE,
         )
 
-    channels_n_invite = client.channels_n_invite  # type: ignore[reportAttributeAccessIssue]
+    channels_n_invite = config.channels_n_invite
     buttons = []
 
-    for channel, invite in channels_n_invite.items():
-        buttons.append([InlineKeyboardButton(text=channel, url=invite)])
+    for channel, channel_info in channels_n_invite.items():
+        buttons.append([InlineKeyboardButton(text=channel, url=channel_info["invite_link"])])
 
     if message.command[1:]:
         link = f"https://t.me/{client.me.username}?start={message.command[1]}"  # type: ignore[reportOptionalMemberAccess]
