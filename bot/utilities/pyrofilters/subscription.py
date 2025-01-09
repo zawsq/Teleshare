@@ -33,7 +33,7 @@ class SubscriptionFilter:
     _subs_cache: ClassVar[LRU] = LRU(10)
 
     @classmethod
-    def subscription(cls) -> filters.Filter:  # noqa: C901
+    def subscription(cls) -> filters.Filter:
         """
         Creates a filter to check if a user is subscribed to the required channels.
 
@@ -41,7 +41,7 @@ class SubscriptionFilter:
             filters.Filter: A filter to check if a user is subscribed to the required channels.
         """
 
-        async def func(flt: None, client: Client, message: SubscriptionMessage) -> bool:  # noqa: ARG001, PLR0911
+        async def func(flt: None, client: Client, message: SubscriptionMessage) -> bool:  # noqa: ARG001
             """
             Checks if a user is subscribed to the required channels.
 
@@ -78,22 +78,21 @@ class SubscriptionFilter:
 
                 cls._subs_cache.pop(user_id)
 
-            try:
-                joined_request_channel = await database.user_requested_channels(user_id)
+            for channel_info in config.channels_n_invite.values():
+                channel_id = channel_info["channel_id"]
 
-                for channel_info in config.channels_n_invite.values():
-                    channel_is_private = channel_info["is_private"]
-                    channel_id = channel_info["channel_id"]
+                try:
+                    member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
 
-                    if channel_is_private and channel_id not in joined_request_channel:
+                    if member.status not in status:
                         return False
 
-                    if not channel_is_private:
-                        member = await client.get_chat_member(chat_id=channel_id, user_id=user_id)
-                        if member.status not in status:
-                            return False
-            except UserNotParticipant:
-                return False
+                except UserNotParticipant:
+                    joined_request_channel = await database.user_requested_channels(user_id)
+                    if (not config.PRIVATE_REQUEST) or (
+                        channel_id not in joined_request_channel and config.PRIVATE_REQUEST
+                    ):
+                        return False
 
             cls._subs_cache[user_id] = datetime.datetime.now(tz=tzlocal.get_localzone())
             return True
