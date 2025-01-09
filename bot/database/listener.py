@@ -26,7 +26,7 @@ class Listener:
 
         return result.acknowledged
 
-    @alru_cache(maxsize=69, ttl=5)
+    @alru_cache(maxsize=69, ttl=2)
     async def user_requested_channels(self, user_id: int) -> list:
         """
         Fetches the list of channels for the user from the database.
