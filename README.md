@@ -18,15 +18,14 @@
 - CodeXbotz links compatibility.
 - Fully asynchronous.
 - In-built rate limiter.
+- Join chat request.
 - Multi-channel force subscription.
 - [Option Setup.](#bot-options)
 - Protect content.
 
 #### TODO
 - [x] Database and Option refactor.
-- [ ] Ban command.
-- [ ] File rename command.
-- [ ] Tokenized access.
+- [x] Ban command.
 
 #### ALL AVAILABLE COMMANDS:
 Use: `/help [command name]` for more informations.
