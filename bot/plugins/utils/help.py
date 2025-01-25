@@ -24,12 +24,12 @@ async def help_command(client: Client, message: Message) -> Message:  # noqa: AR
     global_mode = options.settings.GLOBAL_MODE
 
     if not message.command[1:]:
-        available_commands = (
+        available_commands = sorted(
             HelpCmd.get_cmds()
             if is_root_admin
             else HelpCmd.get_global_cmds()
             if global_mode
-            else HelpCmd.get_non_admin_cmds()
+            else HelpCmd.get_non_admin_cmds(),
         )
 
         format_cmds = "\n".join(available_commands)

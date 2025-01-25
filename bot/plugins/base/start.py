@@ -173,6 +173,9 @@ async def file_start(
             message_ids=schedule_delete_message,
             delete_n_seconds=delete_n_seconds,
         )
+
+    if options.settings.ADDITIONAL_MESSAGE != 0:
+        await PyroHelper.option_message(client=client, message=message, option_key=options.settings.ADDITIONAL_MESSAGE)
     return message.stop_propagation()
 
 

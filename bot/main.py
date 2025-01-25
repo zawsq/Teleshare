@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 
 try:
-    import uvloop   # type: ignore[reportMissingImports]
+    import uvloop  # type: ignore[reportMissingImports]
 
     uvloop.install()
     logging.info("Using UVLoop for enhanced performance")
