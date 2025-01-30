@@ -152,6 +152,14 @@ async def file_start(
 
     delete_n_seconds = options.settings.AUTO_DELETE_SECONDS
 
+    additional_message = None
+    if options.settings.ADDITIONAL_MESSAGE != 0:
+        additional_message = await PyroHelper.option_message(
+            client=client,
+            message=message,
+            option_key=options.settings.ADDITIONAL_MESSAGE,
+        )
+
     if delete_n_seconds != 0:
         schedule_delete_message = [msg.id for msg in send_files]
 
@@ -167,6 +175,9 @@ async def file_start(
         )
         schedule_delete_message.append(auto_delete_message_reply.id)
 
+        if additional_message:
+            schedule_delete_message.append(additional_message.id)
+
         await schedule_manager.schedule_delete(
             client=client,
             chat_id=message.chat.id,
@@ -174,8 +185,6 @@ async def file_start(
             delete_n_seconds=delete_n_seconds,
         )
 
-    if options.settings.ADDITIONAL_MESSAGE != 0:
-        await PyroHelper.option_message(client=client, message=message, option_key=options.settings.ADDITIONAL_MESSAGE)
     return message.stop_propagation()
 
 
