@@ -24,6 +24,14 @@ logging.basicConfig(
     handlers=[RichHandler()],
 )
 
+try:
+    import uvloop  # type: ignore[reportMissingImports]
+
+    uvloop.install()
+    logging.info("Using UVLoop for enhanced performance")
+except ImportError:
+    logging.warning("UVLoop not installed. Falling back to asyncio")
+
 background_tasks = set()
 
 
