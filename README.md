@@ -26,6 +26,7 @@
 #### TODO
 - [x] Database and Option refactor.
 - [x] Ban command.
+- [x] Join chat requests.
 
 #### ALL AVAILABLE COMMANDS:
 Use: `/help [command name]` for more informations.
@@ -51,6 +52,10 @@ this command may take awhile depending on user count.
 ```
 
 2. Can I disable file backup? It depends on your use case. By default, the bot automatically grabs the files through the Telegram server. If you need to use the links in the future on another bot, backing up the files is mandatory.
+3. How to turn on join chat request?
+
+set `PRIVATE_REQUEST` from .env or environment variable to `True`
+
 
 </details>
 
@@ -87,9 +92,11 @@ Main config
 <details id="bot-options">
 <summary>Bot options</summary>
 
-- `FORCE_SUB_MESSAGE (str|int)`: message during force subscription.
-- `START_MESSAGE (str|int)`: a start message.
-- `AUTO_DELETE_MESSAGE (str|int)`: an auto delete messages, {} is the amount of minutes.
+- `FORCE_SUB_MESSAGE (str | int)`: message during force subscription.
+- `BANNED_USER_MESSAGE (str | int)`: The message to display if user is banned from using the bot.
+- `ADDITIONAL_MESSAGE (str | int)`: The message to display after a user recieved a file, set to 0 to disable.
+- `START_MESSAGE (str | int)`: a start message.
+- `AUTO_DELETE_MESSAGE (str | int)`: an auto delete messages, {} is the amount of minutes.
 
 - `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
 - `GLOBAL_MODE (bool)`: toggle everyone to generate a file link.
