@@ -51,7 +51,7 @@ class MongoDB(Moderation, Listener):
         )
         return result.acknowledged
 
-    async def add_file(self, file_link: str, file_origin: int, file_data: list[dict]) -> bool:
+    async def add_file(self, file_link: str, file_origin: int, file_data: list[dict[str, str | int]]) -> bool:
         """
         Adds a file to the database.
 

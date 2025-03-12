@@ -24,6 +24,7 @@ class FileResolverModel(BaseModel):
     caption: str | None
     file_id: str
     message_id: int
+    media_group_id: int | None = None
 
 
 class UnsupportedFileError(Exception):
