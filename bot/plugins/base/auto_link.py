@@ -1,7 +1,6 @@
 import asyncio
 import uuid
-from datetime import datetime
-from typing import ClassVar, TypedDict
+from typing import ClassVar
 
 from pyrogram import filters
 from pyrogram.client import Client
@@ -15,32 +14,26 @@ from bot.utilities.pyrofilters import ConvoMessage, PyroFilters
 from bot.utilities.pyrotools import FileResolverModel
 
 
-class CacheEntry(TypedDict):
-    """Cache entry for files."""
-
-    time: datetime
-    files: list[dict]
-
-
 class AutoLinkGen:
     database = MongoDB()
     background_tasks: ClassVar[set[asyncio.Task]] = set()
-    files_cache: ClassVar[dict[int, CacheEntry]] = {}
+    files_cache: ClassVar[dict[int, dict[int, list[FileResolverModel]]]] = {}
 
     @classmethod
     async def process_files(
         cls,
         client: Client,
         message: Message,
-        file_data: list[dict[str, str | int]],
+        file_data: list[FileResolverModel],
     ) -> Message:
         "Handles file backups"
 
         unique_link = f"{uuid.uuid4().int}"
         file_link = DataEncoder.encode_data(unique_link)
         file_origin = config.BACKUP_CHANNEL if options.settings.BACKUP_FILES else message.chat.id
+        file_datas = [i.model_dump() for i in file_data]
 
-        add_file = await cls.database.add_file(file_link=file_link, file_origin=file_origin, file_data=file_data)
+        add_file = await cls.database.add_file(file_link=file_link, file_origin=file_origin, file_data=file_datas)
 
         if add_file:
             link = f"https://t.me/{client.me.username}?start={file_link}"  # type: ignore[reportOptionalMemberAccess]
@@ -61,36 +54,29 @@ class AutoLinkGen:
     async def media_group_handler(cls, client: Client, message: Message) -> None:
         "backup"
         await asyncio.sleep(3)
-
-        file_datas = cls.files_cache[message.from_user.id][message.media_group_id]
+        file_datas = [i.model_dump() for i in cls.files_cache[message.from_user.id][message.media_group_id]]
 
         if options.settings.BACKUP_FILES:
-            message_ids = [i["message_ids"] for i in file_datas]
             forwarded_messages = await client.forward_messages(
                 chat_id=config.BACKUP_CHANNEL,
                 from_chat_id=message.chat.id,
-                message_ids=message_ids,
+                message_ids=[i["message_ids"] for i in file_datas],
                 hide_sender_name=True,
             )
-
-            file_datas: list[dict[str, str]] = []
-
-            for msg in forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages]:
-                file_type = msg.document or msg.video or msg.photo or msg.audio or msg.sticker
-
-                file_datas.append(
-                    (
-                        FileResolverModel(
-                            caption=msg.caption.markdown if message.caption else None,
-                            file_id=file_type.file_id,
-                            message_id=msg.id,
-                            media_group_id=msg.media_group_id,
-                        )
-                    ).model_dump(),
+            file_datas = [
+                FileResolverModel(
+                    caption=msg.caption.markdown if msg.caption else None,
+                    file_id=(msg.document or msg.video or msg.photo or msg.audio or msg.sticker).file_id,
+                    message_id=msg.id,
+                    media_group_id=msg.media_group_id,
                 )
+                for msg in (forwarded_messages if isinstance(forwarded_messages, list) else [forwarded_messages])
+            ]
+        else:
+            file_datas = [FileResolverModel(**d) for d in file_datas]
 
         del cls.files_cache[message.from_user.id][message.media_group_id]
-        return await cls.process_files(client=client, message=message, file_data=file_datas)
+        await cls.process_files(client=client, message=message, file_data=file_datas)
 
     @classmethod
     async def handle_files(cls, client: Client, message: Message) -> None:
@@ -112,14 +98,13 @@ class AutoLinkGen:
                 task.add_done_callback(cls.background_tasks.discard)
 
             resolve_file.media_group_id = message.media_group_id
-            cls.files_cache[user_id][message.media_group_id].append((resolve_file).model_dump())
+            cls.files_cache[user_id][message.media_group_id].append(resolve_file)
         else:
             if options.settings.BACKUP_FILES:
                 backup_file = await message.copy(chat_id=config.BACKUP_CHANNEL)
                 resolve_file.message_id = backup_file[0].id if isinstance(backup_file, list) else backup_file.id
 
-            await cls.process_files(client=client, message=message, file_data=[resolve_file.model_dump()])
-
+            await cls.process_files(client=client, message=message, file_data=[resolve_file])
 
 
 @Client.on_message(
