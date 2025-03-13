@@ -60,7 +60,7 @@ class AutoLinkGen:
             forwarded_messages = await client.forward_messages(
                 chat_id=config.BACKUP_CHANNEL,
                 from_chat_id=message.chat.id,
-                message_ids=[i["message_ids"] for i in file_datas],
+                message_ids=[i["message_id"] for i in file_datas],
                 hide_sender_name=True,
             )
             file_datas = [
