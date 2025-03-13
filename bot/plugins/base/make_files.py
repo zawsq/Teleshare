@@ -90,6 +90,7 @@ class MakeFilesCommand:
                 "file_id": file_type.file_id,
                 "file_name": getattr(file_type, "file_name", file_type.file_unique_id) or file_type.file_unique_id,
                 "message_id": message.id,
+                "media_group_id": message.media_group_id,
             },
         )
 
@@ -158,6 +159,7 @@ class MakeFilesCommand:
                             "caption": msg.caption.markdown if msg.caption else None,
                             "file_id": file_type.file_id,
                             "message_id": msg.id,
+                            "media_group_id": message.media_group_id,
                         },
                     )
         else:

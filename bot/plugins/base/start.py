@@ -82,7 +82,7 @@ class FileSender:
             ]
 
             for i_file_data in file_data_chunk:
-                send_files = await Pyrotools.send_media_group(
+                send_files = await Pyrotools.send_media_manager(
                     client=client,
                     chat_id=chat_id,
                     file_data=i_file_data,
