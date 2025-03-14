@@ -1,10 +1,11 @@
 import contextlib
+from itertools import groupby
 from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import BaseModel
 from pyrogram.client import Client
 from pyrogram.file_id import FileId
-from pyrogram.types import Message
+from pyrogram.types import InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, Message
 
 from bot.options import options
 
@@ -24,6 +25,7 @@ class FileResolverModel(BaseModel):
     caption: str | None
     file_id: str
     message_id: int
+    media_group_id: int | None = None
 
 
 class UnsupportedFileError(Exception):
@@ -103,6 +105,33 @@ class SendMedia:
         client: Client,
         chat_id: int,
         file_data: list[FileResolverModel],
+        protect_content: bool,  # noqa: FBT001
+    ) -> list[Message]:
+        input_media: dict[str, Callable[..., Any]] = {
+            "AUDIO": InputMediaAudio,
+            "DOCUMENT": InputMediaDocument,
+            "PHOTO": InputMediaPhoto,
+            "VIDEO": InputMediaVideo,
+        }
+
+        media_group = []
+        for i in file_data:
+            file_type_data = FileId.decode(file_id=i.file_id)
+            if not file_type_data:
+                continue
+
+            file_type = file_type_data.file_type.name
+            if file_type in input_media:
+                media_group.append(input_media[file_type](media=i.file_id, caption=i.caption or ""))
+
+        return await client.send_media_group(chat_id=chat_id, media=media_group, protect_content=protect_content)
+
+    @classmethod
+    async def send_media_manager(
+        cls,
+        client: Client,
+        chat_id: int,
+        file_data: list[FileResolverModel],
         file_origin: int,
         protect_content: bool,  # noqa: FBT001
     ) -> Message | list[Message]:
@@ -130,17 +159,38 @@ class SendMedia:
         if send_files:
             return send_files
 
+        re_group_file_datas = [
+            list(g) if k[0] else next(g)
+            for k, g in groupby(
+                file_data,
+                key=lambda x: (
+                    x.media_group_id is not None,
+                    x.media_group_id if x.media_group_id is not None else id(x),
+                ),
+            )
+        ]
+
         send_files_message = []
-        for i in file_data:
-            with contextlib.suppress(UnsupportedFileError):
-                send_files_message.append(
-                    await cls.send_media(
+        for i in re_group_file_datas:
+            if isinstance(i, list):
+                send_files_message.extend(
+                    await cls.send_media_group(
                         client=client,
                         chat_id=chat_id,
                         file_data=i,
-                        file_origin=file_origin,
                         protect_content=protect_content,
                     ),
                 )
+            else:
+                with contextlib.suppress(UnsupportedFileError):
+                    send_files_message.append(
+                        await cls.send_media(
+                            client=client,
+                            chat_id=chat_id,
+                            file_data=i,
+                            file_origin=file_origin,
+                            protect_content=protect_content,
+                        ),
+                    )
 
         return send_files_message

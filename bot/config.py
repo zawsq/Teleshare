@@ -76,6 +76,7 @@ class Config(BaseSettings):
     @field_validator("channels_n_invite", mode="before")
     @classmethod
     def ignore_keys(cls, value: dict[str, ChannelInfo]) -> dict[str, ChannelInfo]:
+        """Ignored configuration keys for runtime injection"""
         return {}
 
     @classmethod
