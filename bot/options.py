@@ -14,6 +14,9 @@ class SettingsModel(BaseModel):
         ADDITIONAL_MESSAGE (str | int): The message to display after a user recieved a file, set to 0 to disable.
         USER_REPLY_TEXT (str | int): The text to reply to a user.
         AUTO_DELETE_MESSAGE (str | int): The message to display when a file is deleted.
+        INVALID_LINK_MESSAGE (str | int): The message to display when a file link is invalid.
+        FILE_DOES_NOT_EXIST (str | int): The message to display when a file does not exists from codexbotz links.
+
         AUTO_DELETE_SECONDS (int): The number of seconds to wait before deleting a file, set to 0 to disable.
         GLOBAL_MODE (bool): Whether the bot is in global mode.
         BACKUP_FILES (bool): Whether to backup files.
@@ -25,6 +28,9 @@ class SettingsModel(BaseModel):
     ADDITIONAL_MESSAGE: str | int = 0
     USER_REPLY_TEXT: str | int = "idk"
     AUTO_DELETE_MESSAGE: str | int = "This file(s) will be deleted within {} minutes"
+    INVALID_LINK_MESSAGE: str | int = "Attempted to resolve link: Got invalid link."
+    FILE_DOES_NOT_EXIST: str | int = "Attempted to fetch files: Does not exist."
+
     AUTO_DELETE_SECONDS: int = 300
     GLOBAL_MODE: bool = False
     BACKUP_FILES: bool = True
