@@ -97,6 +97,8 @@ Main config
 - `ADDITIONAL_MESSAGE (str | int)`: The message to display after a user recieved a file, set to 0 to disable.
 - `START_MESSAGE (str | int)`: a start message.
 - `AUTO_DELETE_MESSAGE (str | int)`: an auto delete messages, {} is the amount of minutes.
+- `INVALID_LINK_MESSAGE (str | int)`: The message to display when a file link is invalid.
+- `FILE_DOES_NOT_EXIST (str | int)`: The message to display when a file does not exists from codexbotz links.
 
 - `AUTO_DELETE_SECONDS (int)`: auto deletion in minutes, is set as {} of AUTO_DELETE_MESSAGE.
 - `GLOBAL_MODE (bool)`: toggle everyone to generate a file link.
