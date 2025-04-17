@@ -1,6 +1,7 @@
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+import asyncio  # Pastikan untuk mengimpor asyncio
 
 from bot.config import config
 from bot.database import MongoDB
@@ -176,16 +177,14 @@ async def file_start(
             if not isinstance(options.settings.AUTO_DELETE_MESSAGE, int)
             else options.settings.AUTO_DELETE_MESSAGE
         )
+        # Kirim pesan awal tanpa tombol
         auto_delete_message_reply = await PyroHelper.option_message(
             client=client,
             message=message,
             option_key=auto_delete_message,
         )
-        schedule_delete_message.append(auto_delete_message_reply.id)
 
-        if additional_message:
-            schedule_delete_message.append(additional_message.id)
-
+        # Hapus file setelah waktu yang ditentukan
         await schedule_manager.schedule_delete(
             client=client,
             chat_id=message.chat.id,
@@ -193,7 +192,38 @@ async def file_start(
             delete_n_seconds=delete_n_seconds,
         )
 
+        # Tunggu hingga file dihapus sebelum menambahkan tombol
+        await asyncio.sleep(delete_n_seconds)
+
+        # Setelah file dihapus, edit pesan untuk menambahkan tombol "ɢᴇᴛ ғɪʟᴇ ᴀɢᴀɪɴ!"
+        reload_url = f"https://t.me/{client.me.username}?start={message.command[1]}" if message.command and len(message.command) > 1 else None
+        keyboard = InlineKeyboardMarkup(
+            [[InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇ ᴀɢᴀɪɴ!", callback_data="get_file_again")]]
+        ) if reload_url else None
+
+        # Edit pesan untuk menambahkan tombol setelah file dihapus
+        await auto_delete_message_reply.edit(
+            text="The file has been successfully deleted. Click the button below to get the file again.",
+            reply_markup=keyboard
+        )
+
     return message.stop_propagation()
+
+
+@Client.on_callback_query(filters.regex("^get_file_again$"))
+async def on_get_file_again(client: Client, callback_query):
+    # Tambahkan log untuk memastikan fungsi ini dipanggil
+    print("Callback query received for 'get_file_again'")
+
+    try:
+        # Hapus pesan yang berisi tombol setelah diklik
+        await callback_query.message.delete()
+        # Kirim pesan konfirmasi ke pengguna tanpa alert
+        await callback_query.answer("The file will be retrieved again.")
+    except Exception as e:
+        # Log kesalahan jika penghapusan gagal
+        print(f"Error deleting message: {e}")
+        await callback_query.answer("Failed to delete the message.", show_alert=True)
 
 
 @Client.on_message(filters.command("start") & filters.private, group=69)
@@ -222,6 +252,10 @@ async def return_start(
     if message.command[1:]:
         link = f"https://t.me/{client.me.username}?start={message.command[1]}"  # type: ignore[reportOptionalMemberAccess]
         buttons.append([InlineKeyboardButton(text="Try Again", url=link)])
+
+    # Tambahkan tombol "ɢᴇᴛ ғɪʟᴇ ᴀɢᴀɪɴ!"
+    reload_url = f"https://t.me/{client.me.username}?start={message.command[1]}" if message.command and len(message.command) > 1 else None
+    buttons.append([InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇ ᴀɢᴀɪɴ!", url=reload_url)])
 
     return await PyroHelper.option_message(
         client=client,
