@@ -2,6 +2,7 @@ from typing import Any, cast
 
 from pyrogram import raw
 from pyrogram.client import Client
+from pyrogram.errors import UserIsBlocked
 from pyrogram.types import Message
 
 from bot.config import ChannelInfo, config
@@ -69,14 +70,16 @@ class PyroHelper:
         message: Message,
         option_key: str | int,
         **kwargs: Any,  # noqa: ANN401
-    ) -> Message:
+    ) -> Message | None:
         if isinstance(option_key, int):
             message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=option_key)
 
             if message_origin:
                 return cast(Message, await message_origin.copy(chat_id=message.chat.id, **kwargs))  # pyright: ignore[reportCallIssue]
-
-        return await message.reply(
-            text=str(option_key),
-            **kwargs,
-        )
+        try:
+            return await message.reply(
+                text=str(option_key),
+                **kwargs,
+            )
+        except UserIsBlocked:
+            return None
