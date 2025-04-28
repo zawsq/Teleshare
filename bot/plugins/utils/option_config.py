@@ -34,7 +34,7 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
 
     if not cmd[1:]:
         options_configs = options.settings.model_dump()
-        format_options = "\n".join(f"**{key}** ```\n{value}```" for key, value in options_configs.items())
+        format_options = "\n".join(f"`/option {key}`\n```\n{value}\n```" for key, value in options_configs.items())
         func_doc = option_config_cmd.__doc__
         return await message.reply(
             text=f"{format_options}\n\n{cleandoc(func_doc) if func_doc else ''}",
@@ -63,7 +63,7 @@ async def option_config_cmd(client: Client, message: Message) -> Message | None:
 
         update = await options.update_settings(key=key, value=change_value)
         options_configs = update.model_dump()
-        format_options = "\n".join(f"**{key}** ```\n{value}```" for key, value in options_configs.items())
+        format_options = "\n".join(f"`/option {key}`\n```\n{value}\n```" for key, value in options_configs.items())
 
         final_message = await message.reply(
             text=f"Updated:\n{format_options}\n\n__Note: if you see number instead of text it means it set a message to copy (this happens if you use reply to a message while setting the option key)__",  # noqa: E501
