@@ -70,7 +70,7 @@ class SendMedia:
         if options.settings.BACKUP_FILES:
             get_file = await client.get_messages(chat_id=file_origin, message_ids=file_data.message_id)
             if not getattr(get_file, "empty", False):
-                return cast(Message, await get_file.copy(chat_id=chat_id))  # pyright: ignore[reportCallIssue]
+                return cast("Message", await get_file.copy(chat_id=chat_id))  # pyright: ignore[reportCallIssue]
 
         file_type_data = FileId.decode(file_id=file_data.file_id)
         methods: dict[str, Callable[..., Any]] = {

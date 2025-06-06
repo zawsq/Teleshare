@@ -54,7 +54,9 @@ class ScheduleManager:
         retrieve_files = [[InlineKeyboardButton(text="Deleted File(s)", url=link)]]
 
         await client.send_message(
-            chat_id=chat_id, text="Retrieve Deleted File(s)", reply_markup=InlineKeyboardMarkup(retrieve_files),
+            chat_id=chat_id,
+            text="Retrieve Deleted File(s)",
+            reply_markup=InlineKeyboardMarkup(retrieve_files),
         )
 
     async def schedule_delete(
