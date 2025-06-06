@@ -58,7 +58,7 @@ class BroadcastHandler:
         try:
             return await copy_and_pin()
         except FloodWait as e:
-            await asyncio.sleep(float(cast(float, e.value)))
+            await asyncio.sleep(float(cast("float", e.value)))
             return await copy_and_pin()
 
     @classmethod

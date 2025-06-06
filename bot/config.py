@@ -22,6 +22,7 @@ from pydantic_settings import (
 from pydantic_settings.sources import SettingsError
 from typing_extensions import TypedDict
 
+logger = logging.getLogger(__name__)
 MongoSRVDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 BASE_PATH = Path(__file__).parent.parent
 
@@ -97,5 +98,5 @@ class Config(BaseSettings):
 try:
     config = Config()  # type: ignore[reportCallIssue]
 except (ValidationError, SettingsError):
-    logging.exception("Configuration Error")
+    logger.exception("Configuration Error")
     sys.exit(1)
