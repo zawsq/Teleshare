@@ -60,12 +60,12 @@ class SubscriptionFilter:
                 ChatMemberStatus.MEMBER,
             ]
 
-            if user_id in config.ROOT_ADMINS_ID or not config.FORCE_SUB_CHANNELS:
-                return True
-
             if await database.is_user_banned(user_id):
                 message.user_is_banned = True
                 return False
+
+            if user_id in config.ROOT_ADMINS_ID or not config.FORCE_SUB_CHANNELS:
+                return True
 
             if user_id in cls._subs_cache:
                 user_cache_time = cls._subs_cache.get(user_id)

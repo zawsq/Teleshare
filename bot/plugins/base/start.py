@@ -181,7 +181,8 @@ async def file_start(
             message=message,
             option_key=auto_delete_message,
         )
-        schedule_delete_message.append(auto_delete_message_reply.id)
+        if auto_delete_message_reply:
+            schedule_delete_message.append(auto_delete_message_reply.id)
 
         if additional_message:
             schedule_delete_message.append(additional_message.id)
@@ -191,6 +192,7 @@ async def file_start(
             chat_id=message.chat.id,
             message_ids=schedule_delete_message,
             delete_n_seconds=delete_n_seconds,
+            base64_file_link=base64_file_link,
         )
 
     return message.stop_propagation()
