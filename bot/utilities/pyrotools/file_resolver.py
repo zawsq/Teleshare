@@ -67,10 +67,14 @@ class SendMedia:
             UnsupportedFileError: If the file type is unsupported.
         """
 
+        caption = "" if options.settings.CUSTOM_CAPTION == 0 else str(options.settings.CUSTOM_CAPTION)
         if options.settings.BACKUP_FILES:
             get_file = await client.get_messages(chat_id=file_origin, message_ids=file_data.message_id)
             if not getattr(get_file, "empty", False):
-                return cast("Message", await get_file.copy(chat_id=chat_id))  # pyright: ignore[reportCallIssue]
+                return cast(
+                    "Message",
+                    await get_file.copy(chat_id=chat_id, caption=caption),  # pyright: ignore[reportCallIssue]
+                )
 
         file_type_data = FileId.decode(file_id=file_data.file_id)
         methods: dict[str, Callable[..., Any]] = {
@@ -90,7 +94,10 @@ class SendMedia:
                 }
 
                 if file_type != "STICKER":
-                    file_kwargs["caption"] = file_data.caption or ""
+                    caption = (
+                        options.settings.CUSTOM_CAPTION if options.settings.CUSTOM_CAPTION else file_data.caption or ""
+                    )
+                    file_kwargs["caption"] = caption
 
                 return await methods[file_type](
                     **file_kwargs,  # pyright: ignore[reportCallIssue]
@@ -122,7 +129,8 @@ class SendMedia:
 
             file_type = file_type_data.file_type.name
             if file_type in input_media:
-                media_group.append(input_media[file_type](media=i.file_id, caption=i.caption or ""))
+                caption = options.settings.CUSTOM_CAPTION if options.settings.CUSTOM_CAPTION else i.caption or ""
+                media_group.append(input_media[file_type](media=i.file_id, caption=caption))
 
         return await client.send_media_group(chat_id=chat_id, media=media_group, protect_content=protect_content)
 
@@ -148,16 +156,18 @@ class SendMedia:
             Message: The sent message.
         """
         messaage_ids = [i.message_id for i in file_data]
-        send_files = await client.forward_messages(
-            chat_id=chat_id,
-            from_chat_id=file_origin,
-            message_ids=messaage_ids,
-            protect_content=protect_content,
-            hide_sender_name=True,
-        )
 
-        if send_files:
-            return send_files
+        if not options.settings.CUSTOM_CAPTION:
+            send_files = await client.forward_messages(
+                chat_id=chat_id,
+                from_chat_id=file_origin,
+                message_ids=messaage_ids,
+                protect_content=protect_content,
+                hide_sender_name=True,
+            )
+
+            if send_files:
+                return send_files
 
         re_group_file_datas = [
             list(g) if k[0] else next(g)
