@@ -13,6 +13,7 @@ class SettingsModel(BaseModel):
         START_MESSAGE (str | int): The message to display when a user starts the bot.
         ADDITIONAL_MESSAGE (str | int): The message to display after a user recieved a file, set to 0 to disable.
         USER_REPLY_TEXT (str | int): The text to reply to a user.
+        CUSTOM_CAPTION (str | int): Custom caption to every files sent, set 0 to disable.
         AUTO_DELETE_MESSAGE (str | int): The message to display when a file is deleted.
         INVALID_LINK_MESSAGE (str | int): The message to display when a file link is invalid.
         FILE_DOES_NOT_EXIST (str | int): The message to display when a file does not exists from codexbotz links.
@@ -27,6 +28,8 @@ class SettingsModel(BaseModel):
     START_MESSAGE: str | int = "I am a file-sharing bot."
     ADDITIONAL_MESSAGE: str | int = 0
     USER_REPLY_TEXT: str | int = "idk"
+
+    CUSTOM_CAPTION: str | int = 0
     AUTO_DELETE_MESSAGE: str | int = "This file(s) will be deleted within {} minutes"
     INVALID_LINK_MESSAGE: str | int = "Attempted to resolve link: Got invalid link."
     FILE_DOES_NOT_EXIST: str | int = "Attempted to fetch files: Does not exist."

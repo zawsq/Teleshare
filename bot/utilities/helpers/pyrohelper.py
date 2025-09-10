@@ -1,9 +1,9 @@
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 from pyrogram import raw
 from pyrogram.client import Client
 from pyrogram.errors import UserIsBlocked
-from pyrogram.types import Message
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import ChannelInfo, config
 
@@ -11,6 +11,11 @@ from bot.config import ChannelInfo, config
 class NoInviteLinkError(Exception):
     def __init__(self, channel: int | str) -> None:
         super().__init__(f"{channel} has no invite link")
+
+
+class CustomCaption(TypedDict):
+    text: str | None
+    inelinekeyboardmarkup: list[list[InlineKeyboardButton]] | None
 
 
 class PyroHelper:
@@ -83,3 +88,19 @@ class PyroHelper:
             )
         except UserIsBlocked:
             return None
+
+    @staticmethod
+    async def custom_caption(client: Client, option_key: str) -> CustomCaption:
+        if isinstance(option_key, int):
+            message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=option_key)
+
+            message = message_origin[0] if isinstance(message_origin, list) else message_origin
+
+            return CustomCaption(
+                text=message.text.markdown if message.text else None,
+                inelinekeyboardmarkup=message.reply_markup.inline_keyboard
+                if isinstance(message.reply_markup, InlineKeyboardMarkup)
+                else None,
+            )
+
+        return CustomCaption(text=str(option_key), inelinekeyboardmarkup=None)
