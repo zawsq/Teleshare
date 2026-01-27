@@ -73,7 +73,7 @@ class SendMedia:
             if not getattr(get_file, "empty", False):
                 return cast(
                     "Message",
-                    await get_file.copy(chat_id=chat_id, caption=caption),  # pyright: ignore[reportCallIssue]
+                    await get_file.copy(chat_id=chat_id, caption=caption, protect_content=protect_content),  # pyright: ignore[reportCallIssue]
                 )
 
         file_type_data = FileId.decode(file_id=file_data.file_id)
