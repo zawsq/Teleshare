@@ -3,7 +3,7 @@ from typing import Any, TypedDict, cast
 from pyrogram import raw
 from pyrogram.client import Client
 from pyrogram.errors import UserIsBlocked
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram.types import InlineKeyboardMarkup, Message
 
 from bot.config import ChannelInfo, config
 
@@ -15,7 +15,7 @@ class NoInviteLinkError(Exception):
 
 class CustomCaption(TypedDict):
     text: str | None
-    inelinekeyboardmarkup: list[list[InlineKeyboardButton]] | None
+    inelinekeyboardmarkup: InlineKeyboardMarkup | None
 
 
 class PyroHelper:
@@ -90,17 +90,19 @@ class PyroHelper:
             return None
 
     @staticmethod
-    async def custom_caption(client: Client, option_key: str) -> CustomCaption:
-        if isinstance(option_key, int):
-            message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=option_key)
+    async def custom_caption(client: Client, option_key: str | int) -> CustomCaption:
+
+        if str(option_key).isdigit() and str(option_key) != "0":
+            message_origin = await client.get_messages(chat_id=config.BACKUP_CHANNEL, message_ids=int(option_key))
 
             message = message_origin[0] if isinstance(message_origin, list) else message_origin
 
             return CustomCaption(
                 text=message.text.markdown if message.text else None,
-                inelinekeyboardmarkup=message.reply_markup.inline_keyboard
+                inelinekeyboardmarkup=message.reply_markup
                 if isinstance(message.reply_markup, InlineKeyboardMarkup)
                 else None,
             )
 
-        return CustomCaption(text=str(option_key), inelinekeyboardmarkup=None)
+        caption = None if option_key == 0 else str(option_key)
+        return CustomCaption(text=caption, inelinekeyboardmarkup=None)

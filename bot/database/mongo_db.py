@@ -30,7 +30,7 @@ class MongoDB(Moderation, Listener):
             dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
             dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
             self.client = AsyncIOMotorClient(host=str(config.MONGO_DB_URL))
-        self.db = self.client[name if name else config.MONGO_DB_NAME]
+        self.db = self.client[name or config.MONGO_DB_NAME]
 
     @alru_cache(maxsize=10, ttl=10)
     async def add_user(self, user_id: int) -> bool:
