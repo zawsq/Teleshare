@@ -8,6 +8,7 @@ from pyrogram.file_id import FileId
 from pyrogram.types import InputMediaAudio, InputMediaDocument, InputMediaPhoto, InputMediaVideo, Message
 
 from bot.options import options
+from bot.utilities.helpers import PyroHelper
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -67,13 +68,20 @@ class SendMedia:
             UnsupportedFileError: If the file type is unsupported.
         """
 
-        caption = "" if options.settings.CUSTOM_CAPTION == 0 else str(options.settings.CUSTOM_CAPTION)
+        obj = await PyroHelper.custom_caption(client=client, option_key=options.settings.CUSTOM_CAPTION)
+        caption, inelinekeyboardmarkup = obj["text"], obj["inelinekeyboardmarkup"]
+
         if options.settings.BACKUP_FILES:
             get_file = await client.get_messages(chat_id=file_origin, message_ids=file_data.message_id)
             if not getattr(get_file, "empty", False):
                 return cast(
                     "Message",
-                    await get_file.copy(chat_id=chat_id, caption=caption, protect_content=protect_content),  # pyright: ignore[reportCallIssue]
+                    await get_file.copy(
+                        chat_id=chat_id,  # pyright: ignore[reportCallIssue]
+                        caption=caption,  # pyright: ignore[reportCallIssue, reportArgumentType]
+                        reply_markup=inelinekeyboardmarkup,  # pyright: ignore[reportCallIssue, reportArgumentType]
+                        protect_content=protect_content,  # pyright: ignore[reportCallIssue]
+                    ),
                 )
 
         file_type_data = FileId.decode(file_id=file_data.file_id)
@@ -91,12 +99,11 @@ class SendMedia:
                     "chat_id": chat_id,
                     file_type.lower(): file_data.file_id,
                     "protect_content": protect_content,
+                    "reply_markup": inelinekeyboardmarkup, # pyright: ignore[reportAssignmentType]
                 }
 
                 if file_type != "STICKER":
-                    caption = (
-                        options.settings.CUSTOM_CAPTION if options.settings.CUSTOM_CAPTION else file_data.caption or ""
-                    )
+                    caption = caption or file_data.caption or ""
                     file_kwargs["caption"] = caption
 
                 return await methods[file_type](
@@ -129,7 +136,7 @@ class SendMedia:
 
             file_type = file_type_data.file_type.name
             if file_type in input_media:
-                caption = options.settings.CUSTOM_CAPTION if options.settings.CUSTOM_CAPTION else i.caption or ""
+                caption = options.settings.CUSTOM_CAPTION or i.caption or ""
                 media_group.append(input_media[file_type](media=i.file_id, caption=caption))
 
         return await client.send_media_group(chat_id=chat_id, media=media_group, protect_content=protect_content)
